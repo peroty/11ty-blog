@@ -53,6 +53,10 @@ async function fetchTags() {
   return request(`${API_BASE}/meta/tags`);
 }
 
+async function fetchSiteConfig() {
+  return request(`${API_BASE}/meta/site`);
+}
+
 async function fetchImages() {
   return request(`${API_BASE}/images`);
 }
@@ -72,6 +76,14 @@ async function uploadImages(files) {
   return Promise.all(uploads);
 }
 
+async function renameImage(oldFilename, filename) {
+  return request(`${API_BASE}/images/${encodeURIComponent(oldFilename)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename })
+  });
+}
+
 async function deploySite() {
   return request(`${API_BASE}/deploy`, { method: 'POST' });
 }
@@ -80,9 +92,11 @@ export {
   fetchEntries,
   fetchImages,
   fetchTags,
+  fetchSiteConfig,
   renderPreview,
   saveEntry,
   deleteEntry,
   uploadImages,
+  renameImage,
   deploySite
 };

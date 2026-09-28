@@ -82,9 +82,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .editor-panel { padding: clamp(28px, 5vw, 70px) clamp(24px, 7vw, 110px); overflow: visible; }
 .editor-header-panel { align-items: flex-start; margin-bottom: 30px; }
-.editor-header-panel h2 { font: 700 clamp(1.8rem, 3vw, 2.7rem)/1.13 Georgia, serif; letter-spacing: -.025em; }
+.editor-header-panel h2 { font: 600 .92rem/1.3 var(--font-sans); letter-spacing: 0; color: var(--muted); }
 .editor-header-panel .eyebrow { color: #a56a3d; }
-.editor-header-panel .muted { font-size: .88rem; }
+.editor-header-panel .muted { display: none; }
 .editor-header-actions { justify-items: start; }
 .editor-empty-state { min-height: 50vh; }
 .empty-card, .preview-empty-state, .preview-empty { background: #fafaf8; border: 1px solid var(--border); }
@@ -92,7 +92,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .rail-right { width: 100%; min-width: 0; max-width: none; margin-bottom: 28px; }
 .inspector-panel { border: 1px solid var(--border); border-radius: 14px; padding: 20px; background: #fff; }
-.inspector-header h2 { font: 700 1.15rem Georgia, serif; }
+.inspector-header h2 { font: 700 clamp(1.9rem, 3vw, 2.5rem)/1.15 Georgia, serif; }
 .inspector-header p { font-size: .83rem; }
 .inspector-tabs { border-bottom: 1px solid var(--border); gap: 0; }
 .inspector-tab { flex: 0 0 auto; border: 0; border-radius: 0; background: transparent; padding: 10px 16px; color: var(--muted); font-weight: 600; }
@@ -116,16 +116,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .field-stack-compact { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
 .field-stack-compact > .field:last-child { grid-column: 1 / -1; }
 .tag-chip { border-radius: 7px; background: #f0ece7; }
-.preview-root { min-height: 230px; max-height: 55vh; overflow: auto; border: 0; background: #fff; padding: 18px 8px; }
+.image-name-field { min-width: 0; }
+.image-name-field input { font-size: .84rem; }
+.preview-root { min-height: 230px; max-height: none; overflow: visible; border: 0; background: #fff; padding: 24px 0; }
 .preview-entry h1 { font-family: Georgia, serif; }
 .preview-kicker { color: var(--accent); }
 .preview-body { font-size: 1.04rem; }
 
-.editor-form { gap: 28px; }
+.editor-form { gap: 24px; }
 .title-field input { padding: 0; border: 0; border-radius: 0; background: transparent; font: 700 clamp(2rem, 4vw, 3.4rem)/1.1 Georgia, serif; letter-spacing: -.03em; }
+.writing-details { display: grid; gap: 17px; width: min(100%, 820px); padding: 20px 22px; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+.writing-details .field { gap: 8px; }
+.writing-details .field textarea { min-height: 76px; resize: vertical; font-family: var(--font-sans); }
+.writing-details .tag-chip-list:empty { display: none; }
 .body-field > span { color: #928c85; }
-.editor-textarea { min-height: 50vh; padding: 14px 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: #fff; color: #34312e; font: 1.12rem/1.8 var(--font-sans); }
-.field textarea.editor-textarea { min-height: 50vh; padding: 14px 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: #fff; color: #34312e; font: 1.12rem/1.8 var(--font-sans); }
+.field textarea.editor-textarea { min-height: max(680px, 76vh); padding: 20px 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: #fff; color: #34312e; font: 1.18rem/1.85 var(--font-sans); resize: vertical; }
+.editor-panel > .rail-right { margin-top: 42px; }
+.editor-panel > .rail-right .inspector-panel { border: 0; border-top: 1px solid var(--border); border-radius: 0; padding: 30px 0; }
 .button { border-radius: 9px; box-shadow: none; background: #2d2b29; padding: 9px 15px; font-weight: 600; }
 .button:hover { background: #48423c; transform: none; }
 .button-ghost { background: #fff; color: var(--ink); border: 1px solid var(--border); }
@@ -151,5 +158,5 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .details-stack, .field-stack-compact { grid-template-columns: 1fr; }
   .advanced-details-grid { grid-template-columns: 1fr; }
   .details-stack > .compact-section:first-child, .field-stack-compact > .field:last-child { grid-column: auto; }
-  .field textarea.editor-textarea { min-height: 45vh; }
+  .field textarea.editor-textarea { min-height: max(480px, 70vh); }
 }

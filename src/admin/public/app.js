@@ -2,10 +2,12 @@ import {
   fetchEntries,
   fetchImages,
   fetchTags,
+  fetchSiteConfig,
   renderPreview,
   saveEntry,
   deleteEntry,
   uploadImages,
+  renameImage,
   deploySite
 } from './api.js';
 import {
@@ -26,11 +28,11 @@ const state = {
   },
   tags: [],
   images: [],
+  sitePort: 8080,
   dirty: false,
   activeInsertTarget: 'body',
   previewTimer: null,
-  inspectorTab: 'details',
-  inspectorOpen: false
+  inspectorTab: 'preview'
 };
 
 const refs = {};
@@ -39,8 +41,8 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   cacheRefs();
-  // Keep metadata and preview beside the writing surface, below its heading.
-  document.querySelector('.editor-panel').insertBefore(refs.inspectorRail, refs.editorForm);
+  // Keep the preview and other tabs below the writing surface.
+  refs.editorForm.after(refs.inspectorRail);
   bindEvents();
   await loadWorkspace();
 }
@@ -72,6 +74,7 @@ function cacheRefs() {
   refs.editorHelp = document.getElementById('editor-help');
   refs.previewRoot = document.getElementById('preview-root');
   refs.inspectorRail = document.getElementById('inspector-rail');
+  refs.inspectorHeading = document.getElementById('inspector-heading');
   refs.inspectorTabs = Array.from(document.querySelectorAll('[data-inspector-tab]'));
   refs.inspectorPanes = {
     preview: document.getElementById('inspector-preview'),
@@ -108,7 +111,6 @@ function cacheRefs() {
   refs.deployButton = document.getElementById('deploy-button');
   refs.saveDraftButton = document.getElementById('save-draft-button');
   refs.publishButton = document.getElementById('publish-button');
-  refs.toggleInspectorButton = document.getElementById('toggle-inspector-button');
   refs.deleteButton = document.getElementById('delete-button');
 }
 
@@ -118,7 +120,10 @@ function bindEvents() {
   });
 
   refs.viewSiteButton.addEventListener('click', () => {
-    window.open('http://127.0.0.1:8080', '_blank');
+    const port = window.location.hostname === 'localhost' ? 'localhost' : '127.0.0.1';
+    const previewPath = state.currentEntry?.status === 'published' && state.currentEntry.previewUrl
+      ? state.currentEntry.previewUrl : '/';
+    window.open(`http://${port}:${state.sitePort}${previewPath}`, '_blank');
   });
 
   refs.deployButton.addEventListener('click', async () => {
@@ -208,11 +213,6 @@ function bindEvents() {
     await persistEntry('published');
   });
 
-  refs.toggleInspectorButton.addEventListener('click', () => {
-    state.inspectorOpen = !state.inspectorOpen;
-    renderInspectorVisibility();
-  });
-
   refs.deleteButton.addEventListener('click', async () => {
     await removeCurrentEntry();
   });
@@ -273,15 +273,17 @@ function bindEvents() {
 
 async function loadWorkspace(showRefreshMessage = false) {
   try {
-    const [entries, tags, images] = await Promise.all([
+    const [entries, tags, images, siteConfig] = await Promise.all([
       fetchEntries(['posts', 'notes', 'links', 'bookmarks', 'quotes', 'pages']),
       fetchTags(),
-      fetchImages()
+      fetchImages(),
+      fetchSiteConfig()
     ]);
 
     state.entries = entries.sort(sortEntries);
     state.tags = tags;
     state.images = images;
+    state.sitePort = siteConfig.port;
 
     populateTagSuggestions();
     renderEntryList();
@@ -430,7 +432,7 @@ async function startNewEntry(type, requirePrompt = true) {
   }
 
   state.currentEntry = createBlankEntry(type);
-  state.inspectorOpen = ['quote', 'bookmark', 'link'].includes(type);
+  state.inspectorTab = 'preview';
   state.baselineSnapshot = snapshotEntry(state.currentEntry);
   updateDirtyState(false);
   renderCurrentEntry();
@@ -445,7 +447,7 @@ async function selectEntry(entry, requirePrompt = true) {
   }
 
   state.currentEntry = structuredClone(entry);
-  state.inspectorOpen = ['quote', 'bookmark', 'link'].includes(entry.type);
+  state.inspectorTab = 'preview';
   state.baselineSnapshot = snapshotEntry(state.currentEntry);
   updateDirtyState(false);
   renderCurrentEntry();
@@ -532,9 +534,7 @@ function renderIdleWorkspace() {
 }
 
 function renderInspectorVisibility() {
-  refs.inspectorRail.classList.toggle('hidden', !state.inspectorOpen);
-  refs.toggleInspectorButton.textContent = state.inspectorOpen ? 'Hide details' : 'Details & preview';
-  refs.toggleInspectorButton.setAttribute('aria-expanded', String(state.inspectorOpen));
+  refs.inspectorRail.classList.remove('hidden');
 }
 
 function localDateTimeValue(value) {
@@ -614,22 +614,54 @@ function renderImages() {
     <article class="image-row">
       <img src="/api/images/serve/${encodeURIComponent(image.filename)}" alt="${escapeHtml(image.filename)}">
       <div class="image-row-body">
-        <h3>${escapeHtml(image.filename)}</h3>
+        <label class="field image-name-field">
+          <span>Filename</span>
+          <input type="text" value="${escapeHtml(image.filename)}" data-image-name="${escapeHtml(image.filename)}" aria-label="Filename for ${escapeHtml(image.filename)}">
+        </label>
         <div class="image-actions">
-          <button class="button button-small button-ghost" type="button" data-image-action="markdown" data-image-file="${image.filename}">MD</button>
-          <button class="button button-small button-ghost" type="button" data-image-action="shortcode" data-image-file="${image.filename}">Shortcode</button>
+          <button class="button button-small button-ghost" type="button" data-image-action="markdown" data-image-file="${escapeHtml(image.filename)}">Insert Markdown</button>
+          <button class="button button-small button-ghost" type="button" data-image-action="rename" data-image-file="${escapeHtml(image.filename)}">Rename</button>
         </div>
       </div>
     </article>
   `).join('');
 
   refs.imageList.querySelectorAll('[data-image-action]').forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       const filename = button.dataset.imageFile;
       if (button.dataset.imageAction === 'markdown') {
         insertIntoActiveField(`![Alt text](/images/${filename})`);
       } else {
-        insertIntoActiveField(`{% image "${filename}", "Alt text" %}`);
+        const input = Array.from(refs.imageList.querySelectorAll('[data-image-name]'))
+          .find((item) => item.dataset.imageName === filename);
+        const newFilename = input.value.trim();
+        try {
+          const result = await renameImage(filename, newFilename);
+          if (state.currentEntry && filename !== newFilename) {
+            const oldPath = `/images/${filename}`;
+            const newPath = `/images/${newFilename}`;
+            state.currentEntry.body = state.currentEntry.body.replaceAll(oldPath, newPath);
+            refs.bodyInput.value = refs.bodyInput.value.replaceAll(oldPath, newPath);
+            state.currentEntry.quote = (state.currentEntry.quote || '').replaceAll(oldPath, newPath);
+            refs.quoteInput.value = refs.quoteInput.value.replaceAll(oldPath, newPath);
+            state.baselineSnapshot = state.baselineSnapshot.replaceAll(oldPath, newPath);
+            handleEntryMutation();
+          }
+          if (filename !== newFilename) {
+            for (const entry of state.entries) {
+              entry.body = entry.body.replaceAll(`/images/${filename}`, `/images/${newFilename}`);
+              entry.quote = (entry.quote || '').replaceAll(`/images/${filename}`, `/images/${newFilename}`);
+            }
+          }
+          state.images = await fetchImages();
+          renderImages();
+          showMessage(result.localSiteUpdated
+            ? `Image renamed to ${newFilename}.`
+            : `Image renamed, but the local site build failed: ${result.buildError || 'unknown error'}`,
+          !result.localSiteUpdated);
+        } catch (error) {
+          showMessage(error.message, true);
+        }
       }
     });
   });
@@ -796,7 +828,10 @@ async function persistEntry(targetStatus) {
     renderCurrentEntry();
     renderEntryList();
     queuePreview();
-    showMessage(targetStatus === 'draft' ? 'Draft saved.' : 'Entry published.');
+    showMessage(response.localSiteUpdated
+      ? (targetStatus === 'draft' ? 'Draft saved. Local site updated.' : 'Published. Local site updated.')
+      : `Saved, but the local site build failed: ${response.buildError || 'unknown error'}`,
+    !response.localSiteUpdated);
   } catch (error) {
     showMessage(error.message, true);
   }
@@ -837,11 +872,14 @@ async function removeCurrentEntry() {
   }
 
   try {
-    await deleteEntry(state.currentEntry);
+    const response = await deleteEntry(state.currentEntry);
     clearRecoveryKeys(state.currentEntry);
     state.entries = state.entries.filter((entry) =>
       !(entry.filename === state.currentEntry.filename && entry.apiType === state.currentEntry.apiType));
-    showMessage('Entry deleted.');
+    showMessage(response.localSiteUpdated
+      ? 'Entry deleted. Local site updated.'
+      : `Entry deleted, but the local site build failed: ${response.buildError || 'unknown error'}`,
+    !response.localSiteUpdated);
     renderIdleWorkspace();
   } catch (error) {
     showMessage(error.message, true);
@@ -920,6 +958,7 @@ function hideRecoveryBanner() {
 
 function switchInspectorTab(tab) {
   state.inspectorTab = tab;
+  refs.inspectorHeading.textContent = tab === 'media' ? 'Images' : tab[0].toUpperCase() + tab.slice(1);
   refs.inspectorTabs.forEach((button) => {
     button.classList.toggle('inspector-tab-active', button.dataset.inspectorTab === tab);
   });

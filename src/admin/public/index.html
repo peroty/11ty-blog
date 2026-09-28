@@ -108,7 +108,6 @@
                 <span id="entry-status-pill" class="status-pill status-pill-neutral hidden">Draft</span>
               </div>
               <div class="action-row">
-                <button class="button button-ghost" id="toggle-inspector-button" type="button" aria-expanded="false">Details &amp; preview</button>
                 <button class="button button-ghost" id="save-draft-button" type="button">Save Draft</button>
                 <button class="button button-strong" id="publish-button" type="button">Publish</button>
               </div>
@@ -128,6 +127,19 @@
               <input id="entry-title" type="text" placeholder="Give this entry a title">
             </label>
 
+            <div class="writing-details">
+              <div id="tags-field" class="field">
+                <span>Tags</span>
+                <div id="tag-chip-list" class="tag-chip-list"></div>
+                <input id="tag-input" type="text" list="tag-suggestions" placeholder="Add a tag and press Enter">
+                <datalist id="tag-suggestions"></datalist>
+              </div>
+              <label id="description-field" class="field">
+                <span id="description-label">Summary</span>
+                <textarea id="entry-description" rows="2" placeholder="Optional summary"></textarea>
+              </label>
+            </div>
+
             <label class="field field-grow body-field">
               <span id="body-label">Body</span>
               <textarea id="entry-body" class="editor-textarea" data-insert-target="body" placeholder="Start writing..."></textarea>
@@ -140,8 +152,7 @@
         <section class="panel inspector-panel">
           <div class="panel-header inspector-header">
             <div>
-              <h2>Inspector</h2>
-              <p>Preview, details, and media in one place.</p>
+              <h2 id="inspector-heading">Preview</h2>
             </div>
             <button class="button button-small button-ghost" id="delete-button" type="button">Delete</button>
           </div>
@@ -149,7 +160,7 @@
           <div class="inspector-tabs">
             <button class="inspector-tab inspector-tab-active" data-inspector-tab="preview" type="button">Preview</button>
             <button class="inspector-tab" data-inspector-tab="details" type="button">Details</button>
-            <button class="inspector-tab" data-inspector-tab="media" type="button">Media</button>
+            <button class="inspector-tab" data-inspector-tab="media" type="button">Images</button>
           </div>
 
           <div id="inspector-preview" class="inspector-pane">
@@ -169,11 +180,6 @@
                   <label class="field">
                     <span id="date-label">Date</span>
                     <input id="entry-date" type="date">
-                  </label>
-
-                  <label id="description-field" class="field">
-                    <span id="description-label">Description</span>
-                    <input id="entry-description" type="text" placeholder="Optional summary">
                   </label>
 
                   <label id="link-url-field" class="field hidden">
@@ -200,13 +206,6 @@
                     <span>Source URL</span>
                     <input id="entry-quote-source-url" type="url" placeholder="https://example.com">
                   </label>
-
-                  <div class="field">
-                    <span>Tags</span>
-                    <div id="tag-chip-list" class="tag-chip-list"></div>
-                    <input id="tag-input" type="text" list="tag-suggestions" placeholder="Type a tag and press Enter">
-                    <datalist id="tag-suggestions"></datalist>
-                  </div>
                 </div>
               </div>
 
@@ -247,7 +246,7 @@
           <div id="inspector-media" class="inspector-pane hidden">
             <div class="compact-section">
               <h3>Media Tray</h3>
-              <p class="muted">Upload once, then insert markdown or shortcode snippets.</p>
+              <p class="muted">Upload an image, rename it if needed, then insert Markdown into your writing.</p>
               <label class="upload-button">
                 <input id="image-upload-input" type="file" accept="image/*" multiple>
                 <span class="button button-block button-ghost">Upload Images</span>

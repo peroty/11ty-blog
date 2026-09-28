@@ -78,6 +78,50 @@ function imagePathFor(filename) {
   return path.join(CONTENT_ROOT, 'images', filename);
 }
 
+async function updateImageReferences(oldFilename, filename) {
+  const folders = ['posts', 'notes', 'link-posts', 'bookmarks', 'quotes', 'pages'];
+  for (const folder of folders) {
+    const directory = path.join(CONTENT_ROOT, folder);
+    let files;
+    try {
+      files = await fs.readdir(directory, { recursive: true });
+    } catch (error) {
+      if (error.code === 'ENOENT') continue;
+      throw error;
+    }
+    for (const file of files.filter((item) => item.endsWith('.md'))) {
+      const entryPath = path.join(directory, file);
+      const original = await fs.readFile(entryPath, 'utf8');
+      const updated = original
+        .replaceAll(`/images/${oldFilename}`, `/images/${filename}`)
+        .replaceAll(`{% image "${oldFilename}"`, `{% image "${filename}"`);
+      if (updated !== original) await fs.writeFile(entryPath, updated);
+    }
+  }
+}
+
+let localBuild = Promise.resolve();
+function rebuildLocalSite() {
+  const build = localBuild.catch(() => {}).then(() => runFile('npm', ['run', 'build:local', '--prefix', 'config'], {
+    cwd: PROJECT_ROOT,
+    timeout: 120000,
+    maxBuffer: 2 * 1024 * 1024
+  }));
+  localBuild = build;
+  return build;
+}
+
+async function saveAndRebuild(type, payload, options) {
+  const entry = await writeEntry(type, payload, options);
+  try {
+    await rebuildLocalSite();
+    return { entry, localSiteUpdated: true };
+  } catch (error) {
+    const detail = (error.stderr || error.stdout || error.message || 'Build failed').trim();
+    return { entry, localSiteUpdated: false, buildError: detail.slice(-1200) };
+  }
+}
+
 app.get('/api/meta/tags', async (req, res, next) => {
   try {
     const tags = await collectTagMetadata();
@@ -85,6 +129,10 @@ app.get('/api/meta/tags', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.get('/api/meta/site', (req, res) => {
+  res.json({ port: Number(process.env.SITE_PORT) || 8080 });
 });
 
 app.post('/api/preview', async (req, res, next) => {
@@ -162,6 +210,41 @@ app.get('/api/images', async (req, res, next) => {
   }
 });
 
+app.patch('/api/images/:filename', async (req, res, next) => {
+  try {
+    const oldFilename = req.params.filename;
+    const filename = req.body?.filename;
+    const oldPath = imagePathFor(oldFilename);
+    const newPath = imagePathFor(filename);
+    if (path.extname(oldFilename).toLowerCase() !== path.extname(filename).toLowerCase()) {
+      throw new ValidationError('Keep the original image file extension.');
+    }
+    if (oldFilename !== filename) {
+      try {
+        await fs.access(newPath);
+        throw new ValidationError('An image with that filename already exists.');
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+      }
+      await fs.rename(oldPath, newPath);
+      await updateImageReferences(oldFilename, filename);
+    }
+    let localSiteUpdated = true;
+    let buildError;
+    if (oldFilename !== filename) {
+      try {
+        await rebuildLocalSite();
+      } catch (error) {
+        localSiteUpdated = false;
+        buildError = (error.stderr || error.stdout || error.message || 'Build failed').trim().slice(-1200);
+      }
+    }
+    res.json({ success: true, filename, oldFilename, path: `/images/${filename}`, localSiteUpdated, buildError });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.delete('/api/images/:filename', async (req, res, next) => {
   try {
     await fs.unlink(imagePathFor(req.params.filename));
@@ -194,11 +277,11 @@ app.get('/api/:type/:filename', async (req, res, next) => {
 app.post('/api/:type', async (req, res, next) => {
   try {
     assertValidApiType(req.params.type);
-    const entry = await writeEntry(req.params.type, req.body || {});
+    const result = await saveAndRebuild(req.params.type, req.body || {});
     res.json({
       success: true,
-      entry,
-      message: `${entry.type} created successfully`
+      ...result,
+      message: `${result.entry.type} created successfully`
     });
   } catch (error) {
     next(error);
@@ -208,11 +291,11 @@ app.post('/api/:type', async (req, res, next) => {
 app.put('/api/:type/:filename', async (req, res, next) => {
   try {
     assertValidApiType(req.params.type);
-    const entry = await writeEntry(req.params.type, req.body || {}, { filename: req.params.filename });
+    const result = await saveAndRebuild(req.params.type, req.body || {}, { filename: req.params.filename });
     res.json({
       success: true,
-      entry,
-      message: `${entry.type} updated successfully`
+      ...result,
+      message: `${result.entry.type} updated successfully`
     });
   } catch (error) {
     next(error);
@@ -223,8 +306,18 @@ app.delete('/api/:type/:filename', async (req, res, next) => {
   try {
     assertValidApiType(req.params.type);
     await deleteEntry(req.params.type, req.params.filename);
+    let localSiteUpdated = true;
+    let buildError;
+    try {
+      await rebuildLocalSite();
+    } catch (error) {
+      localSiteUpdated = false;
+      buildError = (error.stderr || error.stdout || error.message || 'Build failed').trim().slice(-1200);
+    }
     res.json({
       success: true,
+      localSiteUpdated,
+      buildError,
       message: 'Entry deleted successfully'
     });
   } catch (error) {
