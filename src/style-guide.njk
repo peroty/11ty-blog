@@ -1,0 +1,192 @@
+---
+layout: layouts/page-panel.njk
+title: Style Guide
+permalink: /style-guide/
+---
+
+# Style Guide
+
+This page shows the live blog styles in one place so it is easier to tune the theme.
+
+<section class="style-guide-section">
+  <h2>Type Scale</h2>
+  <p>The current theme uses <strong>Bitter</strong> for headings and <strong>Nunito Sans</strong> for body text and metadata.</p>
+
+  <div class="style-guide-grid">
+    <div class="style-guide-sample">
+      <span class="style-guide-label">Site title bar: <code>28px</code></span>
+      <article class="post-item style-guide-entry-sample">
+        <header>
+          <h2 class="post-title"><a href="#">Sample Post Title in Bitter</a></h2>
+          <div class="post-meta">
+            <time datetime="2026-04-07">April 7, 2026</time>
+            <span class="post-tags">
+              <a href="#">#style</a>, <a href="#">#type</a>, <a href="#">#guide</a>
+            </span>
+          </div>
+        </header>
+        <div class="post-content">
+          <p>This is the live paragraph style at <strong>19px</strong>. It is meant to stay readable against the moss-black surface while still feeling a little old-web and journal-like.</p>
+          <p class="permalink-line">
+            <a href="#" class="permalink-link">
+              <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+              <span class="permalink-label">Permalink</span>
+            </a>
+          </p>
+        </div>
+      </article>
+    </div>
+
+    <div class="style-guide-sample">
+      <span class="style-guide-label">Navigation links: <code>17px</code></span>
+      <nav class="site-nav">
+        <a href="#">Posts</a>
+        <a href="#">Notes</a>
+        <a href="#">Quotes</a>
+        <a href="#">Bookmarks</a>
+        <a href="#">Photos</a>
+        <a href="#">About</a>
+      </nav>
+    </div>
+
+    <div class="style-guide-sample">
+      <span class="style-guide-label">Metadata and tags: <code>15px</code></span>
+      <div class="post-meta style-guide-meta-list">
+        <time datetime="2026-04-07">April 7, 2026</time>
+        <span class="post-tags">
+          <a href="#">#meta</a>, <a href="#">#green</a>, <a href="#">#readable</a>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="style-guide-section">
+  <h2>Reference Pairing</h2>
+  <p>This sample borrows the feel of fLaMEd Fury's pairing: <strong>Yanoneka</strong> for display, a plain <strong>system sans</strong> for body copy, and a clipped gradient title using your existing green palette.</p>
+
+  <article class="post-item style-guide-entry-sample style-guide-flamed-sample preview-body-system">
+    <header>
+      <h2 class="post-title preview-title-yanoneka style-guide-gradient-title">
+        <a href="#">A green flame title without leaving your palette</a>
+      </h2>
+      <div class="post-meta">
+        <time datetime="2026-04-07">April 7, 2026</time>
+        <span class="post-tags">
+          <a href="#">#yanoneka</a>, <a href="#">#system-ui</a>, <a href="#">#gradient</a>
+        </span>
+      </div>
+    </header>
+    <div class="post-content">
+      <p>The trick is just text clipping: make the title text transparent, give it a gradient background, and clip that background to the glyph shapes. The display face does most of the personality work.</p>
+      <p>This keeps the surrounding page in your current colors while letting the headline feel brighter and more alive than the solid green title bars elsewhere on the site.</p>
+    </div>
+  </article>
+</section>
+
+<section class="style-guide-section">
+  <h2>Headings</h2>
+
+  <span class="style-guide-label">Global <code>h1</code>: <code>2rem</code></span>
+  <h1>Heading Level One</h1>
+
+  <span class="style-guide-label">Global <code>h2</code>: <code>1.5rem</code> with a dotted divider</span>
+  <h2>Heading Level Two</h2>
+
+  <span class="style-guide-label">Global <code>h3</code>: <code>1.3rem</code> with a dashed divider</span>
+  <h3>Heading Level Three</h3>
+
+  <span class="style-guide-label">Global <code>h4</code>: <code>1.1rem</code></span>
+  <h4>Heading Level Four</h4>
+
+  <span class="style-guide-label">Global <code>h5</code>: <code>1rem</code></span>
+  <h5>Heading Level Five</h5>
+
+  <span class="style-guide-label">Global <code>h6</code>: <code>0.9rem</code></span>
+  <h6>Heading Level Six</h6>
+
+  <span class="style-guide-label">Page panel title bar: <code>28px</code></span>
+  <article class="post-item style-guide-entry-sample">
+    <header>
+      <h2 class="post-title"><a href="#">Entry Title Bar Sample</a></h2>
+    </header>
+  </article>
+</section>
+
+<section class="style-guide-section">
+  <h2>Text Elements</h2>
+  <p>This is a normal paragraph using the live body style. It should read cleanly on the dark moss panel and still feel soft against the green shell of the page.</p>
+  <p>This paragraph also includes <a href="#">a normal link</a>, <strong>strong text</strong>, <em>emphasized text</em>, and <code>inline code</code> to show how mixed inline formatting behaves.</p>
+
+  <p><abbr title="Application Programming Interface">API</abbr> abbreviations, <mark>highlighted text</mark>, and keyboard-style inline examples like <code>Ctrl + Shift + P</code> are worth checking too.</p>
+
+  <blockquote>
+    <p>This is the current blockquote style with the green left rail. It is useful for checking how softer emphasis elements feel beside the larger body text.</p>
+  </blockquote>
+
+  <ol>
+    <li>A numbered list item using the live spacing.</li>
+    <li>A second item to compare against bullets.</li>
+  </ol>
+
+  <ul>
+    <li>A bulleted list item using the live spacing.</li>
+    <li>Another item for checking rhythm and legibility.</li>
+  </ul>
+
+  <hr>
+
+  <details>
+    <summary>Details and summary element</summary>
+    <p>This is useful for checking disclosure styling when it appears inside long-form posts or notes.</p>
+  </details>
+</section>
+
+<section class="style-guide-section">
+  <h2>Code Blocks</h2>
+  <p class="style-guide-code-note">The code block background is now a dark moss and the horizontal scrollbar is styled in deeper greens.</p>
+
+  <span class="style-guide-label">Code block surface: <code>#162019</code></span>
+  <pre><code class="language-bash">sudo apt update && sudo apt install --reinstall typora google-chrome-stable && printf 'this_is_a_deliberately_long_line_to_force_horizontal_scrolling_and_show_the_green_scrollbar_treatment_in_context\n'</code></pre>
+</section>
+
+<section class="style-guide-section">
+  <h2>Markdown Elements</h2>
+  <p>This section groups together the common things you are likely to author directly in Markdown posts and notes.</p>
+
+  <span class="style-guide-label">Image</span>
+  <p><img src="/images/IDShead.jpg" alt="Insomniac's Dream Sequence header art"></p>
+
+  <span class="style-guide-label">Table</span>
+  <table>
+    <thead>
+      <tr>
+        <th>Element</th>
+        <th>Current size</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Body text</td>
+        <td>19px</td>
+        <td>Nunito Sans</td>
+      </tr>
+      <tr>
+        <td>Meta text</td>
+        <td>15px</td>
+        <td>Date and tags</td>
+      </tr>
+      <tr>
+        <td>Nav text</td>
+        <td>17px</td>
+        <td>Header navigation</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <span class="style-guide-label">Preformatted text</span>
+  <pre><code>Line one
+Line two
+Line three</code></pre>
+</section>

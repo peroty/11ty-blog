@@ -1,0 +1,114 @@
+/* Neon Theme - Cyan/Magenta variant */
+[data-theme="neon"] {
+  --of-theme-color: #00ffff;
+  --of-theme-color-dark: #00cccc;
+  --of-darkest-color: #0a0a12;
+  --of-darker-color: #0d0d18;
+  --of-dark-color: #12121f;
+  --of-dark-color2: #161625;
+  --of-dark-color3: #1a1a2e;
+  --of-code-block-bg: #1a1a2e;
+  --of-blockquote-bg: #1a1a2e;
+  --of-strong: #ffffff;
+  --of-strong-code: #00ffff;
+  --of-text-color: #b8b8d0;
+  --accent-secondary: #ff00ff;
+}
+
+[data-theme="neon"] .site-header,
+[data-theme="neon"] .site-footer {
+  border-color: var(--of-theme-color);
+  background: linear-gradient(180deg, var(--of-darkest-color) 0%, rgba(0, 255, 255, 0.05) 100%);
+}
+
+[data-theme="neon"] .site-title {
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+[data-theme="neon"] a {
+  color: var(--of-theme-color);
+}
+
+[data-theme="neon"] a:hover {
+  color: #ff00ff;
+  text-shadow: 0 0 8px rgba(255, 0, 255, 0.5);
+}
+
+[data-theme="neon"] .post-tags a,
+[data-theme="neon"] .note-tags a,
+[data-theme="neon"] .bookmark-tags a,
+[data-theme="neon"] .tag {
+  background: rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+[data-theme="neon"] .post-tags a:hover,
+[data-theme="neon"] .note-tags a:hover,
+[data-theme="neon"] .bookmark-tags a:hover,
+[data-theme="neon"] .tag:hover {
+  background: rgba(255, 0, 255, 0.2);
+  border-color: #ff00ff;
+  color: #ff00ff;
+}
+
+[data-theme="neon"] .post-type-note,
+[data-theme="neon"] .note {
+  border-color: var(--of-theme-color);
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 255, 0.02) 2px,
+      rgba(0, 255, 255, 0.02) 4px
+    ),
+    linear-gradient(135deg, rgba(0, 255, 255, 0.05) 0%, var(--of-dark-color) 100%);
+  box-shadow: 
+    0 0 15px rgba(0, 255, 255, 0.1),
+    2px 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="neon"] .link-post,
+[data-theme="neon"] .bookmark-item {
+  border-color: var(--of-theme-color);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+[data-theme="neon"] blockquote {
+  border-left-color: #ff00ff;
+  background: linear-gradient(90deg, rgba(255, 0, 255, 0.1) 0%, var(--of-dark-color) 100%);
+}
+
+[data-theme="neon"] blockquote::before {
+  background: linear-gradient(135deg, #00ffff, #ff00ff);
+}
+
+[data-theme="neon"] pre,
+[data-theme="neon"] code {
+  border-left-color: var(--of-theme-color);
+  background: var(--of-code-block-bg);
+}
+
+[data-theme="neon"] hr {
+  background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
+}
+
+[data-theme="neon"] th {
+  color: var(--of-theme-color);
+  background: rgba(0, 255, 255, 0.1);
+}
+
+[data-theme="neon"] .post-item:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+}
+
+[data-theme="neon"] h1 {
+  border-bottom-color: var(--of-theme-color);
+}
+
+[data-theme="neon"] .link-permalink:hover,
+[data-theme="neon"] .note-permalink:hover,
+[data-theme="neon"] .bookmark-permalink:hover {
+  color: #ff00ff;
+  text-shadow: 0 0 8px rgba(255, 0, 255, 0.5);
+}

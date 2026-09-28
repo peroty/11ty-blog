@@ -1,0 +1,55 @@
+---
+layout: layouts/base.njk
+title: Notes
+permalink: /notes/
+---
+
+<header class="page-header">
+  <h1>Notes</h1>
+  <p class="tagline">Interesting enough to share, not worth a lengthy post.</p>
+</header>
+
+{% set noteList = collections.notes %}
+{% if noteList.length %}
+  {% for note in noteList %}
+    <article class="post-item post-type-note">
+      <header>
+        <h2 class="post-title">
+          <span class="post-type-icon title-icon">✎</span>
+          <a href="{{ note.url }}">
+            {{ note.templateContent | striptags | truncate(60) }}
+          </a>
+        </h2>
+        
+        <div class="post-meta">
+          <time datetime="{{ note.date | w3DateFilter }}">
+            {{ note.date | readableDate }}
+          </time>
+          
+          {% if note.data.tags %}
+            <span class="post-tags">
+              {% for tag in note.data.tags %}
+                {% if tag != "note" %}
+                  <a href="/tags/{{ tag | slug }}/">#{{ tag }}</a>
+                  {% if not loop.last %}, {% endif %}
+                {% endif %}
+              {% endfor %}
+            </span>
+          {% endif %}
+        </div>
+      </header>
+      
+      <div class="post-content">
+        {{ note.templateContent | safe }}
+        <p class="permalink-line">
+          <a href="{{ note.url }}" class="permalink-link">
+            <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+            <span class="permalink-label">Permalink</span>
+          </a>
+        </p>
+      </div>
+    </article>
+  {% endfor %}
+{% else %}
+  <p>No notes yet.</p>
+{% endif %}

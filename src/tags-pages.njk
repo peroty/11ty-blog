@@ -1,0 +1,72 @@
+---
+pagination:
+  data: collections
+  size: 1
+  alias: tag
+  filter:
+    - all
+    - posts
+    - notes
+    - linkPosts
+    - bookmarks
+    - tagList
+    - feed
+permalink: /tags/{{ tag | slug }}/
+layout: layouts/base.njk
+---
+
+<header class="page-header">
+  <h1>#{{ tag }}</h1>
+  <p class="tagline"><a href="/tags/">← All tags</a></p>
+</header>
+
+{% set taggedItems = collections[tag] %}
+{% if taggedItems.length %}
+  <div class="tagged-items">
+    {% for item in taggedItems | reverse %}
+      <article class="post-item">
+        <header>
+          {% if item.data.title %}
+            <h2 class="post-title">
+              <a href="{{ item.url }}">{{ item.data.title }}</a>
+            </h2>
+          {% else %}
+            <h2 class="post-title">
+              <a href="{{ item.url }}">{{ item.templateContent | striptags | truncate(60) }}</a>
+            </h2>
+          {% endif %}
+          
+          <div class="post-meta">
+            <time datetime="{{ item.date | w3DateFilter }}">
+              {{ item.date | readableDate }}
+            </time>
+            
+            {% if item.data.linkUrl %}
+              <span class="post-type">Link</span>
+            {% elif item.data.bookmarkUrl %}
+              <span class="post-type">Bookmark</span>
+            {% elif item.data.layout == "layouts/note.njk" %}
+              <span class="post-type">Note</span>
+            {% else %}
+              <span class="post-type">Post</span>
+            {% endif %}
+          </div>
+        </header>
+        
+        {% if item.data.description %}
+          <p class="post-excerpt">{{ item.data.description }}</p>
+        {% elif item.templateContent %}
+          <p class="post-excerpt">{{ item.templateContent | striptags | truncate(150) }}</p>
+        {% endif %}
+        <p class="permalink-line">
+          <a href="{{ item.url }}" class="permalink-link">
+            <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+            <span class="permalink-label">Permalink</span>
+          </a>
+        </p>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No items tagged with "{{ tag }}".</p>
+{% endif %}

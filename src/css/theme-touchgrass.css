@@ -1,0 +1,28 @@
+/* Touch Grass Theme - Original green variant */
+[data-theme="touchgrass"] {
+  --of-theme-color: #00ff9d;
+  --of-theme-color-dark: #00cc7a;
+  --of-darkest-color: #1a1a1a;
+  --of-darker-color: #1e1e1e;
+  --of-dark-color: #222222;
+  --of-dark-color2: #252525;
+  --of-dark-color3: #2a2a2a;
+  --of-code-block-bg: #2d3a2d;
+  --of-blockquote-bg: #2d3a2d;
+  --of-strong: #ffffff;
+  --of-strong-code: #00ff9d;
+  --of-text-color: #e0dfda;
+}
+
+/* Touch Grass is the default, so minimal overrides needed */
+[data-theme="touchgrass"] .site-header,
+[data-theme="touchgrass"] .site-footer {
+  border-color: #669966;
+}
+
+[data-theme="touchgrass"] .post-type-note,
+[data-theme="touchgrass"] .note,
+[data-theme="touchgrass"] .link-post,
+[data-theme="touchgrass"] .bookmark-item {
+  border-color: #669966;
+}

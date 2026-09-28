@@ -1,0 +1,1318 @@
+:root {
+  --bg: #669966;
+  --bg-accent: #669966;
+  --surface: #101612;
+  --surface-alt: #1b1d20;
+  --text: #e9eef5;
+  --text-soft: #b4c2d3;
+  --heading: #f3f7fc;
+  --accent: #669966;
+  --accent-link: #9ae69a;
+  --accent-link-visited: #cce69a;
+  --accent-link-hover: #ffffff;
+  --nav-border: #7f9bba;
+  --rule: #cccccc;
+  --blockquote: #669966;
+  --content-width: 40rem;
+  --inner-padding: 1rem;
+  --measure: 36rem;
+  --header-banner-height: calc(min(100vw - 1rem, var(--content-width)) * 276 / 550);
+  --font-body: "Nunito Sans", "Segoe UI", Verdana, sans-serif;
+  --font-ui: "Nunito Sans", "Segoe UI", Verdana, sans-serif;
+  --font-heading: "Bitter", Georgia, serif;
+  --font-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", emoji;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-permalink-glyph: "Noto Sans Egyptian Hieroglyphs", serif;
+  --code-bg: #162019;
+  --code-border: #33523a;
+  --code-text: #dcebd9;
+  --code-scroll-track: #0d1510;
+  --code-scroll-thumb: #3c6546;
+  --code-scroll-thumb-hover: #4f815a;
+}
+
+@font-face {
+  font-family: "Noto Sans Egyptian Hieroglyphs";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/NotoSansEgyptianHieroglyphs-Regular.ttf") format("truetype");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: var(--font-body);
+  background: var(--bg);
+}
+
+a {
+  color: var(--accent-link);
+  text-decoration: none;
+}
+
+a:visited {
+  color: var(--accent-link-visited);
+}
+
+a:hover {
+  color: var(--accent-link-hover);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+p,
+ul,
+ol {
+  margin: 0 0 0.9rem;
+  font-size: 19px;
+  line-height: 1.68;
+}
+
+ul,
+ol {
+  padding-left: 1.25rem;
+}
+
+li+li {
+  margin-top: 0.25rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 0.75rem;
+  color: var(--heading);
+  font-family: var(--font-heading), var(--font-emoji);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  margin-top: 1.15rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px dotted rgba(154, 230, 154, 0.4);
+}
+
+h3 {
+  font-size: 1.3rem;
+  line-height: 1.3;
+  margin-top: 1rem;
+  color: #eef7eb;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px dashed rgba(154, 230, 154, 0.34);
+}
+
+h4 {
+  font-size: 1.1rem;
+}
+
+h5 {
+  font-size: 1rem;
+}
+
+h6 {
+  font-size: 0.9rem;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+  background: var(--code-bg);
+  color: var(--code-text);
+}
+
+code {
+  padding: 0.08rem 0.28rem;
+  border: 1px solid var(--code-border);
+  border-radius: 4px;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 0.8rem;
+  border: 1px solid var(--code-border);
+  border-radius: 8px;
+  scrollbar-color: var(--code-scroll-thumb) var(--code-scroll-track);
+  scrollbar-width: thin;
+}
+
+pre code {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+pre::-webkit-scrollbar {
+  height: 12px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: var(--code-scroll-track);
+  border-radius: 999px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: var(--code-scroll-thumb);
+  border-radius: 999px;
+  border: 2px solid var(--code-scroll-track);
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: var(--code-scroll-thumb-hover);
+}
+
+blockquote {
+  margin: 1rem 5%;
+  padding: 0.35rem 0.35rem 0.35rem 0.65rem;
+  border-left: 2px solid var(--blockquote);
+  color: var(--text);
+  background: transparent;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 13px;
+}
+
+th,
+td {
+  padding: 0.45rem 0.35rem;
+  text-align: left;
+  border-bottom: 1px solid var(--nav-border);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--nav-border);
+  margin: 1rem 5px;
+}
+
+.wrapper,
+.pagination .wrapper,
+.site-footer .wrapper {
+  width: min(calc(100% - 1rem), var(--content-width));
+  margin: 0 auto;
+}
+
+.site-header,
+.page-content,
+.site-footer {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.site-header {
+  width: 100%;
+  background: #000 url("/images/rain.jpg") repeat-x top center;
+  padding: 0 0 5px;
+}
+
+.site-header .wrapper,
+.page-content>.wrapper {
+  gap: 0;
+}
+
+.page-content>.wrapper,
+.site-footer .wrapper {
+  background: #000;
+}
+
+.site-brand {
+  max-width: none;
+}
+
+.site-title {
+  display: block;
+  width: 100%;
+  max-width: var(--content-width);
+  height: var(--header-banner-height);
+  overflow: hidden;
+  background: #000 url("/images/IDShead.jpg") no-repeat center top / 100% 100%;
+  text-indent: -9999px;
+}
+
+.site-description {
+  display: none;
+}
+
+.site-nav {
+  margin: 0;
+  padding: 0 0 0 12px;
+  border-bottom: 1px solid var(--accent);
+  background: #000;
+  text-align: left;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.25rem 0.35rem;
+}
+
+.site-nav a,
+.pagination a {
+  display: inline-block;
+  padding: 0 0 2px;
+  color: #9c9;
+  font-family: var(--font-ui);
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 0 10px 0 10px;
+  letter-spacing: 0;
+  text-transform: none;
+  border-bottom: 4px solid transparent;
+}
+
+.site-nav a:visited,
+.pagination a:visited {
+  color: #9c9;
+}
+
+.site-nav a:hover,
+.pagination a:hover {
+  color: #363;
+  background: #111;
+  border-bottom: 4px solid var(--accent);
+}
+
+.page-content {
+  padding-top: 0;
+}
+
+.page-content>.wrapper {
+  background: transparent;
+  padding-bottom: 0.5rem;
+}
+
+.page-header,
+.post,
+.post-item,
+.note,
+.link-post,
+.bookmark,
+.bookmark-item,
+.site-footer .wrapper {
+  padding-left: var(--inner-padding);
+  padding-right: var(--inner-padding);
+}
+
+.page-header {
+  padding-top: 1rem;
+  padding-bottom: 1.1rem;
+}
+
+.page-header h1,
+.page-header .tagline {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.tagline {
+  color: var(--text);
+  font-size: 19px;
+  line-height: 1.68;
+}
+
+.post,
+.post-item,
+.note,
+.link-post,
+.bookmark,
+.bookmark-item {
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 1.2rem;
+  background: var(--surface);
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+  margin-bottom: 0.9rem;
+}
+
+.post-title,
+.note-title,
+.bookmark-title,
+.bookmark-item-title,
+.link-title {
+  margin: 0 calc(var(--inner-padding) * -1);
+  padding: 9px 10px;
+  border-top: 0;
+  border-bottom: 1px solid var(--rule);
+  background: #696;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1.2;
+  font-family: var(--font-heading), var(--font-emoji);
+  font-variant: small-caps;
+}
+
+.note-title,
+.photo-item h3 {
+  display: block;
+}
+
+.bookmark-item-title {
+  display: block;
+}
+
+.bookmark-icon {
+  display: inline-block;
+  margin-right: 0.3rem;
+  color: currentColor;
+}
+
+.title-icon,
+.post-type-icon,
+.note-icon,
+.bookmark-icon,
+.link-icon {
+  display: inline-block;
+  margin-right: 0.3rem;
+  color: inherit;
+  font-family: var(--font-ui), var(--font-heading);
+  font-variant: normal;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: -0.08em;
+}
+
+.post-title a,
+.note-title a,
+.bookmark-title a,
+.bookmark-item-title a,
+.link-title a,
+.photo-item h3 a,
+.site-title:visited {
+  color: inherit;
+}
+
+.post-title a:visited,
+.note-title a:visited,
+.bookmark-title a:visited,
+.bookmark-item-title a:visited,
+.link-title a:visited {
+  color: inherit;
+}
+
+.post-meta,
+.note-meta,
+.bookmark-meta,
+.bookmark-item-meta,
+.link-meta,
+.photo-item time {
+  margin: 8px 10px 0;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.post-meta time,
+.note-meta time,
+.bookmark-meta time,
+.bookmark-item-meta time,
+.link-meta time,
+.photo-item time {
+  display: block;
+}
+
+.post-content,
+.note-content,
+.bookmark-content,
+.bookmark-item-description,
+.link-content,
+.link-commentary,
+.post-excerpt,
+.page-panel {
+  max-width: none;
+  margin: 0;
+  padding: 0.8rem 10px 0;
+}
+
+.post .post-content p,
+.post .post-content ul,
+.post .post-content ol,
+.post .post-content blockquote p,
+.post-item.post-type-post .post-content p,
+.post-item.post-type-post .post-content ul,
+.post-item.post-type-post .post-content ol,
+.post-item.post-type-post .post-content blockquote p {
+  font-size: 17px;
+  line-height: 1.68;
+}
+
+.page-panel {
+  margin: 0 0 0.9rem;
+  padding-bottom: 1.2rem;
+  background: var(--surface);
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+
+.page-copy h1,
+.page-copy h2,
+.page-copy h3,
+.page-copy h4,
+.page-copy h5,
+.page-copy h6 {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.page-copy h1 {
+  margin-top: 0;
+  padding: 9px 10px;
+  margin-left: -10px;
+  margin-right: -10px;
+  border-bottom: 1px solid var(--rule);
+  background: #696;
+  color: #fff;
+  font-size: 28px;
+  line-height: 1.2;
+  font-variant: small-caps;
+}
+
+.page-copy h2,
+.page-copy h3 {
+  margin-top: 1.15rem;
+  color: var(--heading);
+}
+
+.page-copy h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px dotted rgba(154, 230, 154, 0.4);
+}
+
+.page-copy h3 {
+  font-size: 1.3rem;
+  line-height: 1.3;
+  color: #eef7eb;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px dashed rgba(154, 230, 154, 0.34);
+}
+
+.page-copy p,
+.page-copy ul,
+.page-copy ol {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.tags-panel {
+  padding-top: 0.85rem;
+}
+
+.style-guide-section + .style-guide-section {
+  margin-top: 1.75rem;
+}
+
+.style-guide-label {
+  display: block;
+  margin: 0 0 0.4rem;
+  color: var(--accent-link);
+  font-size: 14px;
+}
+
+.style-guide-label code {
+  font-size: 0.95em;
+}
+
+.style-guide-sample {
+  margin-top: 0.75rem;
+}
+
+.style-guide-sample + .style-guide-sample {
+  margin-top: 1rem;
+}
+
+.style-guide-entry-sample {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.style-guide-meta-list {
+  margin-top: 0.6rem;
+}
+
+.style-guide-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.style-guide-code-note {
+  font-size: 15px;
+  color: var(--text-soft);
+}
+
+.style-guide-flamed-sample .post-title {
+  background:
+    linear-gradient(180deg, rgba(154, 230, 154, 0.16), rgba(16, 22, 18, 0)),
+    #101612;
+  border-bottom: 1px solid rgba(154, 230, 154, 0.35);
+  font-variant: normal;
+  letter-spacing: 0.01em;
+}
+
+.style-guide-flamed-sample .post-title a,
+.style-guide-flamed-sample .post-title a:visited,
+.style-guide-flamed-sample .post-title a:hover,
+.style-guide-flamed-sample .post-title a:focus-visible,
+.preview-title-gradient .post-title a,
+.preview-title-gradient .post-title a:visited,
+.preview-title-gradient .post-title a:hover,
+.preview-title-gradient .post-title a:focus-visible {
+  display: inline-block;
+  background-image: linear-gradient(135deg, #f3f7fc 0%, #d8f0cf 20%, #9ae69a 56%, #669966 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.post-tags,
+.note-tags,
+.bookmark-tags,
+.bookmark-item-tags,
+.link-tags {
+  display: block;
+  margin-top: 0.28rem;
+}
+
+.post-tags a,
+.note-tags a,
+.bookmark-tags a,
+.bookmark-item-tags a,
+.link-tags a,
+.tag {
+  padding: 0;
+  background: transparent;
+  color: #9ae69a;
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.post-tags a:visited,
+.note-tags a:visited,
+.bookmark-tags a:visited,
+.bookmark-item-tags a:visited,
+.link-tags a:visited,
+.tag:visited {
+  color: #9ae69a;
+}
+
+.external-indicator,
+.link-arrow {
+  color: inherit;
+}
+
+.external-indicator {
+  margin-left: 0.2rem;
+  font-size: 0.82em;
+  letter-spacing: -0.08em;
+  line-height: 1;
+}
+
+.permalink-line {
+  margin: 0 10px;
+  padding-top: 5px;
+  border-top: 1px solid var(--nav-border);
+  color: var(--text);
+  font-size: 15px;
+}
+
+.post-footer,
+.link-footer,
+.bookmark-footer,
+.note-footer {
+  margin: 0 10px;
+  padding-top: 5px;
+  border-top: 1px solid var(--nav-border);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.permalink-link,
+.note-permalink,
+.bookmark-permalink,
+.link-permalink,
+.bookmark-source,
+.tag-permalink {
+  color: var(--accent-link);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.permalink-glyph {
+  font-family: var(--font-permalink-glyph);
+  font-size: 1.1em;
+  line-height: 1;
+  color: currentColor;
+}
+
+.post-type {
+  display: block;
+  margin-top: 0.28rem;
+  color: var(--accent-link);
+  font-size: 15px;
+}
+
+.pagination {
+  margin: 0;
+}
+
+.pagination-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 10px 0.8rem;
+}
+
+.site-footer .wrapper {
+  padding-top: 0.6rem;
+  padding-bottom: 0.95rem;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1rem;
+}
+
+.footer-content p,
+.footer-nav a {
+  color: var(--text);
+  font-size: 11px;
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 0.9rem;
+}
+
+.footer-nav a {
+  color: var(--accent-link);
+}
+
+.footer-nav a:visited {
+  color: var(--accent-link);
+}
+
+.tags-list,
+.tagged-items {
+  margin: 0.75rem 10px 0;
+}
+
+.tag-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  margin: 0 0.65rem 0.45rem 0;
+  color: var(--accent-link);
+  font-size: 15px;
+}
+
+.tag-count {
+  color: var(--text-soft);
+  font-size: 13px;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+  margin: 0.75rem 10px 0;
+}
+
+.photo-item {
+  background: #090b0d;
+  border: 1px solid var(--nav-border);
+}
+
+.photo-item a {
+  display: block;
+  color: var(--text);
+}
+
+.photo-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.photo-item h3 {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  border-top: 1px solid var(--rule);
+  background: #696;
+  color: #fff;
+  font-size: 0.95rem;
+  font-variant: small-caps;
+}
+
+.photo-item time {
+  display: block;
+  margin: 0;
+  padding: 0.55rem 0.7rem 0.65rem;
+}
+
+::selection {
+  background: #a8d1a8;
+  color: #000;
+}
+
+@media (max-width: 620px) {
+  .site-nav {
+    gap: 0.05rem 0.15rem;
+    padding-left: 6px;
+  }
+
+  .site-nav a {
+    font-size: 12px;
+    margin-left: 6px;
+    margin-right: 6px;
+  }
+
+  .photo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.preview-page-header {
+  margin-bottom: 1rem;
+}
+
+@font-face {
+  font-family: "Preview Mallory";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://melanie-richards.com/assets/fonts/Mallory-Bold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Preview Yanoneka";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://flamedfury.com/assets/fonts/yanoneka/YanoneKaffeesatz-Bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Preview Standard";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://jamesg.blog/assets/fonts/standard-book-webfont.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Preview Standard";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://jamesg.blog/assets/fonts/standard-bold-webfont.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Preview Cartridge";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://rknight.me/assets/fonts/Cartridge-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Preview MalloryMP";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("https://melanie-richards.com/assets/fonts/MalloryMP-Book.woff") format("woff");
+}
+
+@font-face {
+  font-family: "Preview MalloryMP";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("https://melanie-richards.com/assets/fonts/MalloryMP-Bold.woff") format("woff");
+}
+
+.font-preview-grid {
+  display: grid;
+  gap: 1.4rem;
+  padding: 0 0 1rem;
+}
+
+.font-preview-card {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 0.9rem;
+}
+
+.font-preview-card-header {
+  margin: 0 0 0.9rem;
+}
+
+.font-preview-card-header h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.25rem;
+}
+
+.font-preview-card-header p {
+  margin: 0;
+  color: #dbe7d9;
+}
+
+.font-preview-specimen {
+  margin-bottom: 0;
+}
+
+.font-preview-surface-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.font-preview-specimen-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin: 0 0 0.5rem;
+  color: #eff8ee;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.preview-specimen-post {
+  margin-bottom: 0;
+}
+
+.preview-specimen-post-reference .post-title {
+  font-variant: normal;
+}
+
+.preview-surface-moss {
+  background: #101612;
+}
+
+.preview-surface-charcoal {
+  background: #1b1d20;
+}
+
+.font-preview-specimen .post-title {
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+
+.font-preview-specimen .post-meta {
+  font-size: 0.72rem;
+}
+
+.font-preview-specimen .post-content p,
+.font-preview-specimen .post-content li,
+.font-preview-specimen .post-content blockquote p {
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.preview-scale-1 .post-title {
+  font-size: 18px;
+}
+
+.preview-scale-1 .post-content p,
+.preview-scale-1 .post-content li,
+.preview-scale-1 .post-content blockquote p {
+  font-size: 14px;
+}
+
+.preview-scale-2 .post-title {
+  font-size: 20px;
+}
+
+.preview-scale-2 .post-content p,
+.preview-scale-2 .post-content li,
+.preview-scale-2 .post-content blockquote p {
+  font-size: 15px;
+}
+
+.preview-scale-3 .post-title {
+  font-size: 22px;
+}
+
+.preview-scale-3 .post-content p,
+.preview-scale-3 .post-content li,
+.preview-scale-3 .post-content blockquote p {
+  font-size: 16px;
+}
+
+.preview-scale-4 .post-title {
+  font-size: 24px;
+}
+
+.preview-scale-4 .post-content p,
+.preview-scale-4 .post-content li,
+.preview-scale-4 .post-content blockquote p {
+  font-size: 17px;
+}
+
+.preview-scale-5 .post-title {
+  font-size: 26px;
+}
+
+.preview-scale-5 .post-content p,
+.preview-scale-5 .post-content li,
+.preview-scale-5 .post-content blockquote p {
+  font-size: 18px;
+}
+
+.preview-scale-6 .post-title {
+  font-size: 28px;
+}
+
+.preview-scale-6 .post-content p,
+.preview-scale-6 .post-content li,
+.preview-scale-6 .post-content blockquote p {
+  font-size: 19px;
+}
+
+.preview-scale-7 .post-title {
+  font-size: 30px;
+}
+
+.preview-scale-7 .post-content p,
+.preview-scale-7 .post-content li,
+.preview-scale-7 .post-content blockquote p {
+  font-size: 20px;
+}
+
+.preview-scale-peroty .post-title {
+  font-size: 44px;
+  line-height: 1.3;
+}
+
+.preview-scale-peroty .post-content p,
+.preview-scale-peroty .post-content li,
+.preview-scale-peroty .post-content blockquote p {
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.preview-scale-peroty .post-meta {
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.preview-scale-melanie .post-title {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.preview-scale-melanie .post-content p,
+.preview-scale-melanie .post-content li,
+.preview-scale-melanie .post-content blockquote p {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.preview-scale-james .post-title,
+.preview-scale-rknight .post-title {
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.preview-scale-james .post-content p,
+.preview-scale-james .post-content li,
+.preview-scale-james .post-content blockquote p {
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.preview-scale-rknight .post-content p,
+.preview-scale-rknight .post-content li,
+.preview-scale-rknight .post-content blockquote p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.preview-scale-rknight .post-meta {
+  font-size: 13px;
+}
+
+.preview-scale-manuel .post-title {
+  font-size: 26px;
+  line-height: 1.5;
+}
+
+.preview-scale-manuel .post-content p,
+.preview-scale-manuel .post-content li,
+.preview-scale-manuel .post-content blockquote p {
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+.preview-scale-omgubuntu .post-title {
+  font-size: 30px;
+  line-height: 1.25;
+}
+
+.preview-scale-omgubuntu .post-content p,
+.preview-scale-omgubuntu .post-content li,
+.preview-scale-omgubuntu .post-content blockquote p {
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+.preview-scale-interconnected .post-title {
+  font-size: 36px;
+  line-height: 1.1;
+}
+
+.preview-scale-interconnected .post-content p,
+.preview-scale-interconnected .post-content li,
+.preview-scale-interconnected .post-content blockquote p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.preview-scale-flamed .post-title {
+  font-size: 40px;
+  line-height: 1.08;
+}
+
+.preview-scale-flamed .post-content p,
+.preview-scale-flamed .post-content li,
+.preview-scale-flamed .post-content blockquote p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.preview-title-control .post-title {
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+.preview-body-control,
+.preview-body-control p,
+.preview-body-control li,
+.preview-body-control .post-meta,
+.preview-body-control .font-preview-specimen-meta {
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+.preview-title-oswald .post-title {
+  font-family: "Oswald", "Arial Narrow", sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.preview-title-playfair .post-title {
+  font-family: "Playfair Display", Georgia, serif;
+  letter-spacing: 0;
+}
+
+.preview-body-playfair,
+.preview-body-playfair p,
+.preview-body-playfair li,
+.preview-body-playfair blockquote p {
+  font-family: "Playfair Display", Georgia, serif;
+}
+
+.preview-meta-lato .post-meta,
+.preview-meta-lato .post-meta a,
+.preview-meta-lato .font-preview-specimen-meta {
+  font-family: "Lato", "Helvetica Neue", Arial, sans-serif;
+}
+
+.preview-title-mallory .post-title {
+  font-family: "Preview Mallory", "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+.preview-body-mallory,
+.preview-body-mallory p,
+.preview-body-mallory li,
+.preview-body-mallory blockquote p,
+.preview-body-mallory .post-meta,
+.preview-body-mallory .font-preview-specimen-meta {
+  font-family: "Preview MalloryMP", "Segoe UI", sans-serif;
+}
+
+.preview-title-standard .post-title {
+  font-family: "Preview Standard", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.preview-body-standard,
+.preview-body-standard p,
+.preview-body-standard li,
+.preview-body-standard blockquote p,
+.preview-body-standard .post-meta,
+.preview-body-standard .font-preview-specimen-meta {
+  font-family: "Preview Standard", "Helvetica Neue", Arial, sans-serif;
+}
+
+.preview-title-cartridge .post-title {
+  font-family: "Preview Cartridge", "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+.preview-meta-cartridge .post-meta,
+.preview-meta-cartridge .post-meta a,
+.preview-meta-cartridge .font-preview-specimen-meta {
+  font-family: "Preview Cartridge", "Segoe UI", sans-serif;
+}
+
+.preview-title-iowan .post-title {
+  font-family: "Iowan", "Iowan Old Style", "Iowan BT", "Palatino Linotype", "URW Palladio L", P052, serif;
+  letter-spacing: 0;
+}
+
+.preview-body-iowan,
+.preview-body-iowan p,
+.preview-body-iowan li,
+.preview-body-iowan blockquote p,
+.preview-body-iowan .post-meta,
+.preview-body-iowan .font-preview-specimen-meta {
+  font-family: "Iowan", "Iowan Old Style", "Iowan BT", "Palatino Linotype", "URW Palladio L", P052, serif;
+}
+
+.preview-title-rubik .post-title {
+  font-family: "Rubik", "Ubuntu", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.preview-title-archivo .post-title {
+  font-family: "Archivo", -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Noto Sans", "Droid Sans", sans-serif;
+  letter-spacing: 0;
+}
+
+.preview-title-yanoneka .post-title {
+  font-family: "Preview Yanoneka", "Segoe UI", sans-serif;
+  font-variant: normal;
+  letter-spacing: 0.01em;
+}
+
+.post-title.preview-title-yanoneka {
+  font-family: "Preview Yanoneka", "Segoe UI", sans-serif;
+  font-variant: normal;
+  letter-spacing: 0.01em;
+}
+
+.preview-title-gradient .post-title {
+  background:
+    linear-gradient(180deg, rgba(154, 230, 154, 0.16), rgba(16, 22, 18, 0)),
+    #101612;
+  border-bottom-color: rgba(154, 230, 154, 0.35);
+}
+
+.preview-body-system,
+.preview-body-system p,
+.preview-body-system li,
+.preview-body-system blockquote p,
+.preview-body-system .post-meta,
+.preview-body-system .font-preview-specimen-meta {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Noto Sans", "Droid Sans", sans-serif;
+}
+
+.preview-body-open,
+.preview-body-open p,
+.preview-body-open li,
+.preview-body-open .post-meta,
+.preview-body-open .font-preview-specimen-meta {
+  font-family: "Open Sans", "Segoe UI", sans-serif;
+}
+
+.preview-title-montserrat .post-title {
+  font-family: "Montserrat", "Arial Narrow", sans-serif;
+}
+
+.preview-body-lato,
+.preview-body-lato p,
+.preview-body-lato li,
+.preview-body-lato .post-meta,
+.preview-body-lato .font-preview-specimen-meta {
+  font-family: "Lato", "Segoe UI", sans-serif;
+}
+
+.preview-title-merriweather .post-title {
+  font-family: "Merriweather", Georgia, serif;
+}
+
+.preview-body-source,
+.preview-body-source p,
+.preview-body-source li,
+.preview-body-source .post-meta,
+.preview-body-source .font-preview-specimen-meta {
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.preview-title-raleway .post-title {
+  font-family: "Raleway", "Trebuchet MS", sans-serif;
+}
+
+.preview-body-pt,
+.preview-body-pt p,
+.preview-body-pt li,
+.preview-body-pt .post-meta,
+.preview-body-pt .font-preview-specimen-meta {
+  font-family: "PT Sans", "Segoe UI", sans-serif;
+}
+
+.preview-title-bitter .post-title {
+  font-family: "Bitter", Georgia, serif;
+}
+
+.preview-body-nunito,
+.preview-body-nunito p,
+.preview-body-nunito li,
+.preview-body-nunito .post-meta,
+.preview-body-nunito .font-preview-specimen-meta {
+  font-family: "Nunito Sans", "Segoe UI", sans-serif;
+}
+
+.preview-title-slabo .post-title {
+  font-family: "Slabo 27px", Georgia, serif;
+}
+
+.preview-body-work,
+.preview-body-work p,
+.preview-body-work li,
+.preview-body-work .post-meta,
+.preview-body-work .font-preview-specimen-meta {
+  font-family: "Work Sans", "Segoe UI", sans-serif;
+}

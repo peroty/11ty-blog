@@ -1,0 +1,26 @@
+[
+  {
+    "label": "Posts",
+    "url": "/archives/"
+  },
+  {
+    "label": "Notes",
+    "url": "/notes/"
+  },
+  {
+    "label": "Quotes",
+    "url": "/quotes/"
+  },
+  {
+    "label": "Bookmarks",
+    "url": "/bookmarks/"
+  },
+  {
+    "label": "Photos",
+    "url": "/photos/"
+  },
+  {
+    "label": "About",
+    "url": "/about/"
+  }
+]

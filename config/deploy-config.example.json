@@ -1,0 +1,6 @@
+{
+  "host": "your-domain.dreamhosters.com",
+  "username": "your-username",
+  "remotePath": "/home/your-username/your-domain.com/",
+  "localPath": "_site/"
+}

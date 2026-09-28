@@ -1,0 +1,55 @@
+---
+layout: layouts/base.njk
+title: Quotes
+permalink: /quotes/
+---
+
+<header class="page-header">
+  <h1>Quotes</h1>
+  <p class="tagline">Words worth remembering</p>
+</header>
+
+{% set linkList = collections.linkPosts %}
+{% if linkList.length %}
+  {% for link in linkList %}
+    <article class="post-item post-type-link">
+      <header>
+        <h2 class="post-title">
+          <span class="post-type-icon title-icon">💬</span>
+          <a href="{{ link.data.linkUrl }}" target="_blank" rel="noopener noreferrer">
+            {{ link.data.title }} <span class="external-indicator" aria-hidden="true">↗</span>
+          </a>
+        </h2>
+        
+        <div class="post-meta">
+          <time datetime="{{ link.date | w3DateFilter }}">
+            {{ link.date | readableDate }}
+          </time>
+          
+          {% if link.data.tags %}
+            <span class="post-tags">
+              {% for tag in link.data.tags %}
+                {% if tag != "link" %}
+                  <a href="/tags/{{ tag | slug }}/">#{{ tag }}</a>
+                  {% if not loop.last %}, {% endif %}
+                {% endif %}
+              {% endfor %}
+            </span>
+          {% endif %}
+        </div>
+      </header>
+      
+      <div class="post-excerpt">
+        {{ link.templateContent | safe }}
+        <p class="permalink-line">
+          <a href="{{ link.url }}" class="permalink-link">
+            <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+            <span class="permalink-label">Permalink</span>
+          </a>
+        </p>
+      </div>
+    </article>
+  {% endfor %}
+{% else %}
+  <p>No quotes yet.</p>
+{% endif %}

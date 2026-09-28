@@ -1,0 +1,14 @@
+{
+  "name": "11ty-blog-workspace",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm install --prefix config",
+    "build": "npm run build --prefix config",
+    "build:pages": "npm run build && node scripts/prepare-pages.js",
+    "start": "npm run start --prefix config",
+    "watch": "npm run watch --prefix config",
+    "admin": "npm run admin --prefix config",
+    "test:admin": "npm run test:admin --prefix config",
+    "deploy": "npm run deploy --prefix config"
+  }
+}

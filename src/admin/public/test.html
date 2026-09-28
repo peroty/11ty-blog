@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <button onclick="testAPI()">Test API Connection</button>
+    <pre id="output"></pre>
+
+    <script>
+        async function testAPI() {
+            const output = document.getElementById('output');
+            output.textContent = 'Testing API connection...\n';
+            
+            try {
+                // Test posts endpoint
+                output.textContent += '\nFetching posts from /api/posts...\n';
+                const response = await fetch('http://localhost:3000/api/posts');
+                output.textContent += `Status: ${response.status}\n`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    output.textContent += `Success! Found ${data.length} posts\n`;
+                    output.textContent += JSON.stringify(data, null, 2);
+                } else {
+                    output.textContent += `Error: ${response.statusText}\n`;
+                }
+            } catch (error) {
+                output.textContent += `\nError: ${error.message}\n`;
+                output.textContent += `This usually means CORS or network issue\n`;
+            }
+        }
+        
+        // Auto-run test on page load
+        window.addEventListener('load', testAPI);
+    </script>
+</body>
+</html>

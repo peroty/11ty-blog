@@ -1,0 +1,43 @@
+---
+layout: layouts/base.njk
+title: Photos
+permalink: /photos/
+---
+
+<header class="page-header">
+  <h1>Photos</h1>
+  <p class="tagline">A visual collection of pixels.</p>
+</header>
+
+<div class="photo-grid">
+  {% set photoList = [] %}
+  {% for post in collections.posts %}
+    {% if post.data.tags and 'photography' in post.data.tags %}
+      {% set photoList = (photoList.push(post), photoList) %}
+    {% endif %}
+  {% endfor %}
+  {% for note in collections.notes %}
+    {% if note.data.tags and 'photography' in note.data.tags %}
+      {% set photoList = (photoList.push(note), photoList) %}
+    {% endif %}
+  {% endfor %}
+  
+  {% if photoList.length %}
+    {% for photo in photoList %}
+      {% set photoImage = photo.data.image or (photo.templateContent | firstImageSrc) %}
+      <article class="photo-item">
+        <a href="{{ photo.url }}">
+          {% if photoImage %}
+            <img src="{{ photoImage }}" alt="{{ photo.data.title or (photo.templateContent | striptags | truncate(60)) }}" loading="lazy">
+          {% endif %}
+          <h3><span class="post-type-icon title-icon">▣</span> {{ photo.data.title or (photo.templateContent | striptags | truncate(60)) }}</h3>
+          <time datetime="{{ photo.date | w3DateFilter }}">
+            {{ photo.date | readableDate }}
+          </time>
+        </a>
+      </article>
+    {% endfor %}
+{% else %}
+  <p>No photos yet. Add posts with the "photography" tag to see them here.</p>
+  {% endif %}
+</div>

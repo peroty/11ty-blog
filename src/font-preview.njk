@@ -1,0 +1,335 @@
+---
+layout: layouts/base.njk
+title: Font Preview
+permalink: /font-preview/
+---
+
+{% set surfaces = [
+  {
+    "label": "Soft Moss Black",
+    "value": "#101612",
+    "className": "preview-surface-moss"
+  },
+  {
+    "label": "Charcoal",
+    "value": "#1b1d20",
+    "className": "preview-surface-charcoal"
+  }
+] %}
+
+{% macro renderSpecimen(specimen) %}
+  <div class="font-preview-surface-grid">
+    {% for surface in surfaces %}
+      <section class="font-preview-specimen {{ specimen.titleClass }} {{ specimen.bodyClass }} {{ specimen.scaleClass }} {% if specimen.metaClass %}{{ specimen.metaClass }}{% endif %}">
+        <div class="font-preview-specimen-meta">
+          <span>{{ specimen.metaLabel }}</span>
+          <span>{{ surface.label }} {{ surface.value }}</span>
+        </div>
+
+        <article class="post-item preview-specimen-post {% if specimen.reference %}preview-specimen-post-reference{% endif %} {{ surface.className }}">
+          <header>
+            <h3 class="post-title">
+              <a href="#">{{ specimen.sampleTitle }}</a>
+            </h3>
+
+            <div class="post-meta">
+              <time datetime="2026-04-06">April 6, 2026</time>
+              <span class="post-tags">
+                {% for tag in specimen.tags %}
+                  <a href="#">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+              </span>
+            </div>
+          </header>
+
+          <div class="post-content">
+            {% for paragraph in specimen.paragraphs %}
+              <p>{{ paragraph | safe }}</p>
+            {% endfor %}
+            <blockquote>
+              <p>{{ specimen.quote }}</p>
+            </blockquote>
+            <p class="permalink-line">
+              <a href="#" class="permalink-link">
+                <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+                <span class="permalink-label">Permalink</span>
+              </a>
+            </p>
+          </div>
+        </article>
+      </section>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% set referenceSpecs = [
+  {
+    "label": "peroty.com/blog Reference",
+    "description": "Headline: Playfair Display at about 44px. Body: Playfair Display at 17px. Meta: Lato at about 13px.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "Peroty.com/blog in the Dream Sequence",
+    "titleClass": "preview-title-playfair",
+    "bodyClass": "preview-body-playfair",
+    "metaClass": "preview-meta-lato",
+    "scaleClass": "preview-scale-peroty",
+    "tags": ["#playfair", "#lato", "#reference"],
+    "paragraphs": [
+      "This reference specimen mirrors the more editorial typography on peroty.com/blog, where the headlines are dramatically larger and the reading text keeps a softer serif voice.",
+      "The metadata line stays smaller and sans-serif, which creates much of that site’s contrast. There is also a <a href=\"#\">plain inline link</a> so you can compare how the larger serif body holds up here."
+    ],
+    "quote": "Playfair at display size has a very different feel from the cleaner sans pairings below, especially once it starts to dominate the panel.",
+    "reference": true
+  },
+  {
+    "label": "Melanie Richards Reference",
+    "description": "Headline: Mallory Bold at 1.5rem. Body: MalloryMP at 16px with 1.5 line-height.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "Melanie Richards in the Dream Sequence",
+    "titleClass": "preview-title-mallory",
+    "bodyClass": "preview-body-mallory",
+    "scaleClass": "preview-scale-melanie",
+    "tags": ["#mallory", "#mallorymp", "#reference"],
+    "paragraphs": [
+      "This reference specimen mirrors Melanie’s custom sans system, which feels cleaner and more product-like while still keeping a strong headline/body distinction.",
+      "Because the original uses custom-hosted fonts, this preview references the same public font files directly. It also includes a <a href=\"#\">plain inline link</a> so you can compare that calmer rhythm against the other options."
+    ],
+    "quote": "The Mallory system stays crisp without getting too tight, which makes it a useful reference if you want something modern but still highly readable.",
+    "reference": true
+  },
+  {
+    "label": "James' Coffee Blog Reference",
+    "description": "Headline and body: Standard. Title around 32px. Body around 17px.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "James' Coffee Blog in the Dream Sequence",
+    "titleClass": "preview-title-standard",
+    "bodyClass": "preview-body-standard",
+    "scaleClass": "preview-scale-james",
+    "tags": ["#standard", "#reference"],
+    "paragraphs": [
+      "This one follows James’ own Standard face for both headlines and reading text, which gives the page a calm, cohesive tone without turning too ornate.",
+      "The site itself uses Monaspace for code, but the main article voice is this bookish sans. There is also a <a href=\"#\">plain inline link</a> so the texture stays easy to judge."
+    ],
+    "quote": "The interesting part here is how readable a single-family system can feel when the spacing and sizing are doing most of the work.",
+    "reference": true
+  },
+  {
+    "label": "R Knight Reference",
+    "description": "Headline: Cartridge-Regular at about 32px. Body: system sans at about 18px.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "R Knight in the Dream Sequence",
+    "titleClass": "preview-title-cartridge",
+    "bodyClass": "preview-body-system",
+    "metaClass": "preview-meta-cartridge",
+    "scaleClass": "preview-scale-rknight",
+    "tags": ["#cartridge", "#system", "#reference"],
+    "paragraphs": [
+      "This reference keeps the playful Cartridge headline while leaving the body in a plain system sans, which is a nice example of strong personality without sacrificing reading comfort.",
+      "It also shows what happens when the display voice is allowed to stay in the title and metadata, while the body settles down into a simpler rhythm with a <a href=\"#\">plain inline link</a>."
+    ],
+    "quote": "Cartridge has a lot of character, so pairing it with a neutral body helps keep the page from feeling overdesigned.",
+    "reference": true
+  },
+  {
+    "label": "Manuel Moreale Reference",
+    "description": "Headline and body: Iowan serif stack. Title around 1.6rem. Body 1rem with roomy line-height.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "Manuel Moreale in the Dream Sequence",
+    "titleClass": "preview-title-iowan",
+    "bodyClass": "preview-body-iowan",
+    "scaleClass": "preview-scale-manuel",
+    "tags": ["#iowan", "#serif", "#reference"],
+    "paragraphs": [
+      "This specimen mirrors Manuel’s softer editorial approach: a classic serif stack for both title and body, with the legibility coming from line-height and pacing more than from contrast between families.",
+      "It is quieter than some of the other references, but that is also its strength. A <a href=\"#\">plain inline link</a> helps show whether the serif texture still feels clear inside your current shell."
+    ],
+    "quote": "If you want the Dream Sequence to feel more literary than technical, this is one of the better reference points on the page.",
+    "reference": true
+  },
+  {
+    "label": "OMG! Ubuntu Reference",
+    "description": "Headline: Rubik at about 30px. Body: system sans at about 18px.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "OMG! Ubuntu in the Dream Sequence",
+    "titleClass": "preview-title-rubik",
+    "bodyClass": "preview-body-system",
+    "scaleClass": "preview-scale-omgubuntu",
+    "tags": ["#rubik", "#system", "#reference"],
+    "paragraphs": [
+      "This reference leans into a bolder modern web-news look: Rubik gives the title a strong, compact shape while the body stays in a familiar system sans for speed and clarity.",
+      "It is cleaner and punchier than the more bookish options above, and the <a href=\"#\">plain inline link</a> helps show whether that sharper modern voice still belongs inside your green-and-black theme."
+    ],
+    "quote": "Rubik reads well at medium-large sizes, especially when you want a sans headline that still has a little warmth.",
+    "reference": true
+  },
+  {
+    "label": "Interconnected Reference",
+    "description": "Headline: Archivo over a system sans body, approximated from the live article page.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "Interconnected in the Dream Sequence",
+    "titleClass": "preview-title-archivo",
+    "bodyClass": "preview-body-system",
+    "scaleClass": "preview-scale-interconnected",
+    "tags": ["#archivo", "#system", "#reference"],
+    "paragraphs": [
+      "This one captures the broad feel of Interconnected: a large Archivo heading with airy system-sans body copy that feels open, contemporary, and very web-native.",
+      "The main question here is whether that amount of size and openness still feels right once it is dropped into the denser Dream Sequence framing. There is also a <a href=\"#\">plain inline link</a> for comparison."
+    ],
+    "quote": "Archivo brings a lot of confidence to titles, especially when the surrounding layout gives it enough room to breathe.",
+    "reference": true
+  },
+  {
+    "label": "fLaMEd Fury Reference",
+    "description": "Headline: Yanoneka with clipped gradient text. Body: system sans.",
+    "metaLabel": "Source Reference",
+    "sampleTitle": "fLaMEd Fury in the Dream Sequence",
+    "titleClass": "preview-title-yanoneka preview-title-gradient",
+    "bodyClass": "preview-body-system",
+    "scaleClass": "preview-scale-flamed",
+    "tags": ["#yanoneka", "#system-ui", "#gradient"],
+    "paragraphs": [
+      "This reference pulls from the live article treatment on fLaMEd Fury: a condensed display face up top, simple system body copy below, and the color coming from gradient-clipped text instead of a flat title color.",
+      "For this preview the flame hues are translated into your existing green range, so the contrast stays native to the Dream Sequence shell while still showing the same basic idea."
+    ],
+    "quote": "The headline effect comes from clipped background gradients, not from image assets or special text rendering.",
+    "reference": true
+  }
+] %}
+
+{% set fontCombos = [
+  {
+    "label": "Current Control",
+    "description": "Title: Verdana. Body: Verdana.",
+    "metaLabel": "Title 18px / Body 14px",
+    "sampleTitle": "Current Control in the Dream Sequence",
+    "titleClass": "preview-title-control",
+    "bodyClass": "preview-body-control",
+    "scaleClass": "preview-scale-1",
+    "tags": ["#type", "#design", "#readability"],
+    "paragraphs": [
+      "The aim here is to see whether the title can feel distinctive without tiring the eye, and whether the body copy stays comfortable across a full paragraph in the current theme shell.",
+      "This sample keeps the same green title bar, metadata line, and content width as the live site. It also includes a <a href=\"#\">plain inline link</a> so contrast and emphasis are easy to judge."
+    ],
+    "quote": "Good typography in this theme should feel calm, legible, and slightly old-web without becoming muddy or cramped."
+  },
+  {
+    "label": "Oswald + Open Sans",
+    "description": "Title: Oswald. Body: Open Sans.",
+    "metaLabel": "Title 20px / Body 15px",
+    "sampleTitle": "Oswald + Open Sans in the Dream Sequence",
+    "titleClass": "preview-title-oswald",
+    "bodyClass": "preview-body-open",
+    "scaleClass": "preview-scale-2",
+    "tags": ["#type", "#design", "#readability"],
+    "paragraphs": [
+      "The aim here is to see whether the title can feel distinctive without tiring the eye, and whether the body copy stays comfortable across a full paragraph in the current theme shell.",
+      "This sample keeps the same green title bar, metadata line, and content width as the live site. It also includes a <a href=\"#\">plain inline link</a> so contrast and emphasis are easy to judge."
+    ],
+    "quote": "Good typography in this theme should feel calm, legible, and slightly old-web without becoming muddy or cramped."
+  },
+  {
+    "label": "Montserrat + Lato",
+    "description": "Title: Montserrat. Body: Lato.",
+    "metaLabel": "Title 22px / Body 16px",
+    "sampleTitle": "Montserrat + Lato in the Dream Sequence",
+    "titleClass": "preview-title-montserrat",
+    "bodyClass": "preview-body-lato",
+    "scaleClass": "preview-scale-3",
+    "tags": ["#type", "#design", "#readability"],
+    "paragraphs": [
+      "The aim here is to see whether the title can feel distinctive without tiring the eye, and whether the body copy stays comfortable across a full paragraph in the current theme shell.",
+      "This sample keeps the same green title bar, metadata line, and content width as the live site. It also includes a <a href=\"#\">plain inline link</a> so contrast and emphasis are easy to judge."
+    ],
+    "quote": "Good typography in this theme should feel calm, legible, and slightly old-web without becoming muddy or cramped."
+  },
+  {
+    "label": "Merriweather + Source Sans 3",
+    "description": "Title: Merriweather. Body: Source Sans 3.",
+    "metaLabel": "Title 24px / Body 17px",
+    "sampleTitle": "Merriweather + Source Sans 3 in the Dream Sequence",
+    "titleClass": "preview-title-merriweather",
+    "bodyClass": "preview-body-source",
+    "scaleClass": "preview-scale-4",
+    "tags": ["#type", "#design", "#readability"],
+    "paragraphs": [
+      "The aim here is to see whether the title can feel distinctive without tiring the eye, and whether the body copy stays comfortable across a full paragraph in the current theme shell.",
+      "This sample keeps the same green title bar, metadata line, and content width as the live site. It also includes a <a href=\"#\">plain inline link</a> so contrast and emphasis are easy to judge."
+    ],
+    "quote": "Good typography in this theme should feel calm, legible, and slightly old-web without becoming muddy or cramped."
+  },
+  {
+    "label": "Raleway + PT Sans",
+    "description": "Title: Raleway. Body: PT Sans.",
+    "metaLabel": "Title 26px / Body 18px",
+    "sampleTitle": "Raleway + PT Sans in the Dream Sequence",
+    "titleClass": "preview-title-raleway",
+    "bodyClass": "preview-body-pt",
+    "scaleClass": "preview-scale-5",
+    "tags": ["#type", "#design", "#readability"],
+    "paragraphs": [
+      "The aim here is to see whether the title can feel distinctive without tiring the eye, and whether the body copy stays comfortable across a full paragraph in the current theme shell.",
+      "This sample keeps the same green title bar, metadata line, and content width as the live site. It also includes a <a href=\"#\">plain inline link</a> so contrast and emphasis are easy to judge."
+    ],
+    "quote": "Good typography in this theme should feel calm, legible, and slightly old-web without becoming muddy or cramped."
+  },
+  {
+    "label": "Bitter + Nunito Sans",
+    "description": "Title: Bitter. Body: Nunito Sans.",
+    "metaLabel": "Title 28px / Body 19px",
+    "sampleTitle": "Bitter + Nunito Sans in the Dream Sequence",
+    "titleClass": "preview-title-bitter",
+    "bodyClass": "preview-body-nunito",
+    "scaleClass": "preview-scale-6",
+    "tags": ["#type", "#design", "#readability"],
+    "paragraphs": [
+      "The aim here is to see whether the title can feel distinctive without tiring the eye, and whether the body copy stays comfortable across a full paragraph in the current theme shell.",
+      "This sample keeps the same green title bar, metadata line, and content width as the live site. It also includes a <a href=\"#\">plain inline link</a> so contrast and emphasis are easy to judge."
+    ],
+    "quote": "Good typography in this theme should feel calm, legible, and slightly old-web without becoming muddy or cramped."
+  },
+  {
+    "label": "Slabo 27px + Work Sans",
+    "description": "Title: Slabo 27px. Body: Work Sans.",
+    "metaLabel": "Title 30px / Body 20px",
+    "sampleTitle": "Slabo 27px + Work Sans in the Dream Sequence",
+    "titleClass": "preview-title-slabo",
+    "bodyClass": "preview-body-work",
+    "scaleClass": "preview-scale-7",
+    "tags": ["#type", "#design", "#readability"],
+    "paragraphs": [
+      "The aim here is to see whether the title can feel distinctive without tiring the eye, and whether the body copy stays comfortable across a full paragraph in the current theme shell.",
+      "This sample keeps the same green title bar, metadata line, and content width as the live site. It also includes a <a href=\"#\">plain inline link</a> so contrast and emphasis are easy to judge."
+    ],
+    "quote": "Good typography in this theme should feel calm, legible, and slightly old-web without becoming muddy or cramped."
+  }
+] %}
+
+<header class="page-header preview-page-header">
+  <h1>Font Preview</h1>
+  <p class="tagline">The same font references and pairings inside the live Arctic Palace shell, now shown on soft moss-black and charcoal panels so the comparison stays focused on readability.</p>
+</header>
+
+<section class="font-preview-grid font-preview-grid-sources" aria-label="Reference site typography">
+  {% for specimen in referenceSpecs %}
+    <article class="font-preview-card">
+      <header class="font-preview-card-header">
+        <h2>{{ specimen.label }}</h2>
+        <p>{{ specimen.description }}</p>
+      </header>
+
+      {{ renderSpecimen(specimen) }}
+    </article>
+  {% endfor %}
+</section>
+
+<section class="font-preview-grid" aria-label="Font combinations">
+  {% for specimen in fontCombos %}
+    <article class="font-preview-card">
+      <header class="font-preview-card-header">
+        <h2>{{ specimen.label }}</h2>
+        <p>{{ specimen.description }}</p>
+      </header>
+
+      {{ renderSpecimen(specimen) }}
+    </article>
+  {% endfor %}
+</section>

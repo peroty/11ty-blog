@@ -1,0 +1,21 @@
+---
+layout: layouts/base.njk
+title: Tags
+permalink: /tags/
+---
+
+<header class="page-header">
+  <h1>Tags</h1>
+  <p class="tagline">Browse content by topic</p>
+</header>
+
+<section class="page-panel tags-panel">
+  <div class="tags-list">
+    {% for item in collections.tagList %}
+      <a href="/tags/{{ item.tag | slug }}/" class="tag-item">
+        <span class="tag-name">#{{ item.tag }}</span>
+        <span class="tag-count">{{ item.count }}</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>

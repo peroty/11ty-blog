@@ -1,0 +1,86 @@
+---
+layout: layouts/base.njk
+title: Home
+---
+
+{% set allPosts = collections.posts %}
+{% set allNotes = collections.notes %}
+{% set allLinks = collections.linkPosts %}
+{% set allBookmarks = collections.bookmarks %}
+
+{% set allContent = allPosts | concat(allNotes) | concat(allLinks) | concat(allBookmarks) %}
+{% set sortedContent = allContent | sort(attribute='date') | reverse %}
+
+{% for post in sortedContent %}
+  {% set itemType = 'post' %}
+  {% if post.data.layout == 'layouts/note.njk' or (post.data.tags and 'note' in post.data.tags) %}
+    {% set itemType = 'note' %}
+  {% elif post.data.layout == 'layouts/link.njk' or post.data.linkUrl %}
+    {% set itemType = 'link' %}
+  {% elif post.data.layout == 'layouts/bookmark.njk' or post.data.bookmarkUrl %}
+    {% set itemType = 'bookmark' %}
+  {% endif %}
+  <article class="post-item post-type-{{ itemType }}">
+    <header>
+      <h2 class="post-title">
+        {% if itemType == 'note' or itemType == 'link' or itemType == 'bookmark' or (post.data.tags and 'photography' in post.data.tags) %}
+        <span class="post-type-icon title-icon">
+          {% if itemType == 'note' %}✎{% elif itemType == 'link' %}💬{% elif itemType == 'bookmark' %}⌗{% elif post.data.tags and 'photography' in post.data.tags %}▣{% endif %}
+        </span>
+        {% endif %}
+        <a href="{{ post.url }}">
+          {% if post.data.title %}
+            {{ post.data.title }}
+          {% else %}
+            {{ post.templateContent | striptags | truncate(60) }}
+          {% endif %}
+        </a>
+      </h2>
+      
+      <div class="post-meta">
+        <time datetime="{{ post.date | w3DateFilter }}">
+          {{ post.date | readableDate }}
+        </time>
+        
+        {% if post.data.tags %}
+          <span class="post-tags">
+            {% for tag in post.data.tags %}
+              {% if tag != "post" and tag != "note" and tag != "link" %}
+                <a href="/tags/{{ tag | slug }}/">#{{ tag }}</a>
+                {% if not loop.last %}, {% endif %}
+              {% endif %}
+            {% endfor %}
+          </span>
+        {% endif %}
+      </div>
+    </header>
+    
+    <div class="post-content">
+      {{ post.templateContent | safe }}
+      <p class="permalink-line">
+        <a href="{{ post.url }}" class="permalink-link">
+          <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+          <span class="permalink-label">Permalink</span>
+        </a>
+      </p>
+    </div>
+  </article>
+{% endfor %}
+
+<nav class="pagination" aria-label="Pagination">
+  <div class="wrapper">
+    <div class="pagination-content">
+      {% if pagination.href.previous %}
+        <a href="{{ pagination.href.previous }}" class="pagination-previous">
+          ← Newer posts
+        </a>
+      {% endif %}
+      
+      {% if pagination.href.next %}
+        <a href="{{ pagination.href.next }}" class="pagination-next">
+          Older posts →
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</nav>

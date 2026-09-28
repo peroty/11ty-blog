@@ -1,0 +1,42 @@
+---
+layout: layouts/base.njk
+---
+
+<article class="link-post">
+  <header class="link-header">
+    <h1 class="link-title">
+      <span class="link-icon title-icon">💬</span>
+      <a href="{{ linkUrl }}" class="link-outbound" target="_blank" rel="noopener noreferrer">
+        {{ title }} <span class="external-indicator" aria-hidden="true">↗</span>
+      </a>
+    </h1>
+    
+    <div class="link-meta">
+      <time datetime="{{ page.date | w3DateFilter }}">
+        {{ page.date | readableDate }}
+      </time>
+      
+      {% if tags %}
+        <span class="link-tags">
+          {% for tag in tags %}
+            {% if tag != "link" %}
+              <a href="/tags/{{ tag | slug }}/">#{{ tag }}</a>
+              {% if not loop.last %}, {% endif %}
+            {% endif %}
+          {% endfor %}
+        </span>
+      {% endif %}
+    </div>
+  </header>
+  
+  <div class="link-content">
+    {{ content | safe }}
+    <p class="permalink-line">
+      <a href="{{ page.url }}" class="permalink-link">
+        <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+        <span class="permalink-label">Permalink</span>
+      </a>
+    </p>
+  </div>
+  
+</article>

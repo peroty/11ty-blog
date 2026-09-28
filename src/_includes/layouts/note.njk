@@ -1,0 +1,38 @@
+---
+layout: layouts/base.njk
+---
+
+<article class="note">
+  <header class="note-header">
+    <h1 class="note-title">
+      <span class="note-icon title-icon">✎</span> Note
+    </h1>
+    <div class="note-meta">
+      <time datetime="{{ page.date | w3DateFilter }}" class="note-date">
+        {{ page.date | readableDate }}
+      </time>
+      
+      {% if tags %}
+        <span class="note-tags">
+          {% for tag in tags %}
+            {% if tag != "note" %}
+              <a href="/tags/{{ tag | slug }}/">#{{ tag }}</a>
+              {% if not loop.last %}, {% endif %}
+            {% endif %}
+          {% endfor %}
+        </span>
+      {% endif %}
+    </div>
+  </header>
+  
+  <div class="note-content">
+    {{ content | safe }}
+    <p class="permalink-line">
+      <a href="{{ page.url }}" class="permalink-link">
+        <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+        <span class="permalink-label">Permalink</span>
+      </a>
+    </p>
+  </div>
+  
+</article>

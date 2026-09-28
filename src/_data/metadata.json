@@ -1,0 +1,20 @@
+{
+  "title": "Insomniac's Dream Sequence",
+  "url": "https://carlholscher.com",
+  "description": "A collection of thoughts, notes, and links by Carl Holscher.",
+  "author": {
+    "name": "Carl Holscher",
+    "email": "carl@carlholscher.com"
+  },
+  "social": {
+    "twitter": "peroty",
+    "github": "peroty",
+    "mastodon": "@carl@social.lol"
+  },
+  "feed": {
+    "filename": "feed.xml",
+    "path": "/feed.xml",
+    "url": "/feed.xml",
+    "feedUrl": "https://carlholscher.com/feed.xml"
+  }
+}

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Admin V2</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Local 11ty Authoring</p>
+        <h1>Blog Admin V2</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="button button-ghost" id="refresh-button" type="button">Refresh</button>
+        <button class="button button-ghost" id="view-site-button" type="button">View Site</button>
+      </div>
+    </header>
+
+    <div class="status-bar">
+      <div id="flash-message" class="flash-message" aria-live="polite"></div>
+      <div id="recovery-banner" class="recovery-banner hidden">
+        <p id="recovery-text">Recovered local changes are available for this entry.</p>
+        <div class="recovery-actions">
+          <button class="button button-small" id="restore-recovery-button" type="button">Restore</button>
+          <button class="button button-small button-ghost" id="discard-recovery-button" type="button">Discard</button>
+        </div>
+      </div>
+    </div>
+
+    <main id="workspace" class="workspace workspace-no-inspector">
+      <aside class="rail rail-left">
+        <section class="panel manager-panel">
+          <div class="panel-header">
+            <h2>Library</h2>
+            <p>Search and jump between recent entries.</p>
+          </div>
+
+          <div class="manager-controls">
+            <label class="field">
+              <span>Search</span>
+              <input id="search-input" type="search" placeholder="Search title, tags, or content">
+            </label>
+
+            <div class="filter-row">
+              <label class="field">
+                <span>Type</span>
+                <select id="type-filter">
+                  <option value="all">All types</option>
+                  <option value="post">Posts</option>
+                  <option value="note">Notes</option>
+                  <option value="link">Links</option>
+                  <option value="bookmark">Bookmarks</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Status</span>
+                <select id="status-filter">
+                  <option value="all">All statuses</option>
+                  <option value="published">Published</option>
+                  <option value="draft">Drafts</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="manager-new-entry">
+            <div class="entry-list-header">
+              <h3>New Entry</h3>
+              <p>Start fresh</p>
+            </div>
+            <div class="new-entry-stack">
+              <button class="button button-ghost" data-new-entry="post" type="button">New Post</button>
+              <button class="button button-ghost" data-new-entry="note" type="button">New Note</button>
+              <button class="button button-ghost" data-new-entry="link" type="button">New Link</button>
+              <button class="button button-ghost" data-new-entry="bookmark" type="button">New Bookmark</button>
+            </div>
+          </div>
+
+          <div class="entry-list-header">
+            <h3>Entries</h3>
+            <p id="entry-count">0 items</p>
+          </div>
+          <div id="entry-list" class="entry-list" aria-live="polite"></div>
+        </section>
+      </aside>
+
+      <section class="editor-column">
+        <section class="panel editor-panel">
+          <div class="editor-header-panel">
+            <div>
+              <p id="entry-kicker" class="eyebrow">Writer</p>
+              <h2 id="entry-heading">Choose an entry or start a new draft</h2>
+              <p id="entry-subheading" class="muted">Your writing surface opens here after you pick something from the library or create a new item.</p>
+            </div>
+            <div class="editor-header-actions">
+              <div class="header-badges">
+                <span id="dirty-indicator" class="status-pill hidden">Unsaved changes</span>
+                <span id="entry-status-pill" class="status-pill status-pill-neutral hidden">Draft</span>
+              </div>
+              <div class="action-row">
+                <button class="button button-ghost" id="save-draft-button" type="button">Save Draft</button>
+                <button class="button button-strong" id="publish-button" type="button">Publish</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="editor-empty-state" class="editor-empty-state">
+            <div class="empty-card empty-card-large">
+              <h3>Nothing open yet</h3>
+              <p>Use the library to open an existing entry, or create a new post, note, link, or bookmark from the left side.</p>
+            </div>
+          </div>
+
+          <form id="entry-form" class="editor-form" autocomplete="off">
+            <label id="title-field" class="field title-field">
+              <span>Title</span>
+              <input id="entry-title" type="text" placeholder="Give this entry a title">
+            </label>
+
+            <label class="field field-grow body-field">
+              <span id="body-label">Body</span>
+              <textarea id="entry-body" class="editor-textarea" data-insert-target="body" placeholder="Start writing..."></textarea>
+            </label>
+          </form>
+        </section>
+      </section>
+
+      <aside id="inspector-rail" class="rail rail-right hidden">
+        <section class="panel inspector-panel">
+          <div class="panel-header inspector-header">
+            <div>
+              <h2>Inspector</h2>
+              <p>Preview, details, and media in one place.</p>
+            </div>
+            <button class="button button-small button-ghost" id="delete-button" type="button">Delete</button>
+          </div>
+
+          <div class="inspector-tabs">
+            <button class="inspector-tab inspector-tab-active" data-inspector-tab="preview" type="button">Preview</button>
+            <button class="inspector-tab" data-inspector-tab="details" type="button">Details</button>
+            <button class="inspector-tab" data-inspector-tab="media" type="button">Media</button>
+          </div>
+
+          <div id="inspector-preview" class="inspector-pane">
+            <div id="preview-root" class="preview-root">
+              <div class="preview-empty-state">
+                <h3>Your preview will appear here</h3>
+                <p>Create or open an entry to start composing.</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="inspector-details" class="inspector-pane hidden">
+            <div class="details-stack">
+              <div class="compact-section">
+                <h3>Metadata</h3>
+                <div class="field-stack field-stack-compact">
+                  <label class="field">
+                    <span id="date-label">Date</span>
+                    <input id="entry-date" type="date">
+                  </label>
+
+                  <label id="description-field" class="field">
+                    <span id="description-label">Description</span>
+                    <input id="entry-description" type="text" placeholder="Optional summary">
+                  </label>
+
+                  <label id="link-url-field" class="field hidden">
+                    <span>Link URL</span>
+                    <input id="entry-link-url" type="url" placeholder="https://example.com">
+                  </label>
+
+                  <label id="bookmark-url-field" class="field hidden">
+                    <span>Bookmark URL</span>
+                    <input id="entry-bookmark-url" type="url" placeholder="https://example.com">
+                  </label>
+
+                  <label id="quote-field" class="field hidden">
+                    <span>Quote</span>
+                    <textarea id="entry-quote" rows="5" data-insert-target="quote" placeholder="Optional pull quote"></textarea>
+                  </label>
+
+                  <div class="field">
+                    <span>Tags</span>
+                    <div id="tag-chip-list" class="tag-chip-list"></div>
+                    <input id="tag-input" type="text" list="tag-suggestions" placeholder="Type a tag and press Enter">
+                    <datalist id="tag-suggestions"></datalist>
+                  </div>
+                </div>
+              </div>
+
+              <div class="compact-section">
+                <h3>Validation</h3>
+                <ul id="validation-list" class="validation-list"></ul>
+              </div>
+
+              <div class="compact-section">
+                <h3>File Info</h3>
+                <dl class="meta-list">
+                  <div>
+                    <dt>Filename</dt>
+                    <dd id="file-name">Not saved yet</dd>
+                  </div>
+                  <div>
+                    <dt>Slug</dt>
+                    <dd id="file-slug">n/a</dd>
+                  </div>
+                  <div>
+                    <dt>Updated</dt>
+                    <dd id="file-updated">n/a</dd>
+                  </div>
+                  <div>
+                    <dt>Preview</dt>
+                    <dd id="file-preview"><span class="muted">Save to get a permalink</span></dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <div id="inspector-media" class="inspector-pane hidden">
+            <div class="compact-section">
+              <h3>Media Tray</h3>
+              <p class="muted">Upload once, then insert markdown or shortcode snippets.</p>
+              <label class="upload-button">
+                <input id="image-upload-input" type="file" accept="image/*" multiple>
+                <span class="button button-block button-ghost">Upload Images</span>
+              </label>
+              <div id="image-list" class="image-list"></div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

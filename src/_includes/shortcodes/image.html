@@ -1,0 +1,13 @@
+{%- if src -%}
+  {%- set imageSrc = src -%}
+  {%- if not src.startsWith('http') and not src.startsWith('/') -%}
+    {%- set imageSrc = './images/' + src -%}
+  {%- endif -%}
+  
+  <figure class="image-figure">
+    {% image imageSrc, alt, "(min-width: 30em) 50vw, 100vw" %}
+    {% if caption %}
+      <figcaption class="image-caption">{{ caption | markdown | safe }}</figcaption>
+    {% endif %}
+  </figure>
+{%- endif -%}

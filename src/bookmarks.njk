@@ -1,0 +1,56 @@
+---
+layout: layouts/base.njk
+title: Bookmarks
+permalink: /bookmarks/
+---
+
+<header class="page-header">
+  <h1>Bookmarks</h1>
+  <p class="tagline">Neat links worth saving</p>
+</header>
+
+{% set bookmarkList = collections.bookmarks %}
+{% if bookmarkList.length %}
+  <div class="bookmark-list">
+    {% for bookmark in bookmarkList %}
+      <article class="bookmark-item">
+        <header>
+          <h2 class="bookmark-item-title">
+            <span class="bookmark-icon title-icon">⌗</span>
+            <a href="{{ bookmark.data.bookmarkUrl }}" target="_blank" rel="noopener noreferrer">
+              {{ bookmark.data.title }} <span class="external-indicator">↗</span>
+            </a>
+          </h2>
+        </header>
+        
+        <div class="bookmark-item-meta">
+          <time datetime="{{ bookmark.date | w3DateFilter }}">
+            {{ bookmark.date | readableDate }}
+          </time>
+          
+          {% if bookmark.data.tags %}
+            <span class="bookmark-item-tags">
+              {% for tag in bookmark.data.tags %}
+                {% if tag != "bookmark" %}
+                  <a href="/tags/{{ tag | slug }}/">#{{ tag }}</a>
+                {% endif %}
+              {% endfor %}
+            </span>
+          {% endif %}
+        </div>
+        
+        {% if bookmark.data.description %}
+          <p class="bookmark-item-description">{{ bookmark.data.description }}</p>
+        {% endif %}
+        <p class="permalink-line">
+          <a href="{{ bookmark.url }}" class="permalink-link">
+            <span class="permalink-glyph" aria-hidden="true">𓅰</span>
+            <span class="permalink-label">Permalink</span>
+          </a>
+        </p>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No bookmarks yet.</p>
+{% endif %}
