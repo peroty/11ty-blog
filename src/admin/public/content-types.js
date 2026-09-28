@@ -13,7 +13,7 @@ const TYPE_DEFS = {
     showLinkUrl: false,
     showBookmarkUrl: false,
     showQuote: false,
-    starterBody: '## Opening\n\nStart writing here.\n'
+    starterBody: ''
   },
   note: {
     type: 'note',
@@ -27,7 +27,7 @@ const TYPE_DEFS = {
     showLinkUrl: false,
     showBookmarkUrl: false,
     showQuote: false,
-    starterBody: '> A quick note worth keeping.\n'
+    starterBody: ''
   },
   link: {
     type: 'link',
@@ -41,7 +41,7 @@ const TYPE_DEFS = {
     showLinkUrl: true,
     showBookmarkUrl: false,
     showQuote: true,
-    starterBody: 'Why it mattered:\n\n'
+    starterBody: ''
   },
   bookmark: {
     type: 'bookmark',
@@ -58,10 +58,42 @@ const TYPE_DEFS = {
     showBookmarkUrl: true,
     showQuote: false,
     starterBody: ''
+  },
+  quote: {
+    type: 'quote',
+    apiType: 'quotes',
+    label: 'Quote',
+    bodyLabel: 'Quote text',
+    bodyPlaceholder: 'Write or paste the quote in Markdown...',
+    dateInputType: 'date',
+    showTitle: false,
+    showDescription: false,
+    showLinkUrl: false,
+    showBookmarkUrl: false,
+    showQuote: false,
+    showQuoteAuthor: true,
+    showQuoteSourceUrl: true,
+    starterBody: ''
+  },
+  page: {
+    type: 'page',
+    apiType: 'pages',
+    label: 'Page',
+    bodyLabel: 'Page body',
+    titlePlaceholder: 'Page title',
+    bodyPlaceholder: 'Write your page in Markdown...',
+    dateInputType: 'date',
+    descriptionLabel: 'Description',
+    descriptionPlaceholder: 'Optional summary for previews and SEO',
+    showDescription: true,
+    showLinkUrl: false,
+    showBookmarkUrl: false,
+    showQuote: false,
+    starterBody: ''
   }
 };
 
-const TYPE_ORDER = ['post', 'note', 'link', 'bookmark'];
+const TYPE_ORDER = ['post', 'note', 'quote', 'bookmark', 'page', 'link'];
 
 function pad(value) {
   return String(value).padStart(2, '0');
@@ -92,6 +124,8 @@ function createBlankEntry(type) {
     linkUrl: '',
     bookmarkUrl: '',
     quote: '',
+    quoteAuthor: '',
+    quoteSourceUrl: '',
     body: def.starterBody,
     status: 'draft',
     previewUrl: null,

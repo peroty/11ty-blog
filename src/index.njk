@@ -7,8 +7,9 @@ title: Home
 {% set allNotes = collections.notes %}
 {% set allLinks = collections.linkPosts %}
 {% set allBookmarks = collections.bookmarks %}
+{% set allQuotes = collections.quotes %}
 
-{% set allContent = allPosts | concat(allNotes) | concat(allLinks) | concat(allBookmarks) %}
+{% set allContent = allPosts | concat(allNotes) | concat(allLinks) | concat(allBookmarks) | concat(allQuotes) %}
 {% set sortedContent = allContent | sort(attribute='date') | reverse %}
 
 {% for post in sortedContent %}
@@ -19,13 +20,15 @@ title: Home
     {% set itemType = 'link' %}
   {% elif post.data.layout == 'layouts/bookmark.njk' or post.data.bookmarkUrl %}
     {% set itemType = 'bookmark' %}
+  {% elif post.data.layout == 'layouts/quote.njk' %}
+    {% set itemType = 'quote' %}
   {% endif %}
   <article class="post-item post-type-{{ itemType }}">
     <header>
       <h2 class="post-title">
-        {% if itemType == 'note' or itemType == 'link' or itemType == 'bookmark' or (post.data.tags and 'photography' in post.data.tags) %}
+        {% if itemType == 'note' or itemType == 'link' or itemType == 'bookmark' or itemType == 'quote' or (post.data.tags and 'photography' in post.data.tags) %}
         <span class="post-type-icon title-icon">
-          {% if itemType == 'note' %}✎{% elif itemType == 'link' %}💬{% elif itemType == 'bookmark' %}⌗{% elif post.data.tags and 'photography' in post.data.tags %}▣{% endif %}
+          {% if itemType == 'note' %}✎{% elif itemType == 'link' or itemType == 'quote' %}💬{% elif itemType == 'bookmark' %}⌗{% elif post.data.tags and 'photography' in post.data.tags %}▣{% endif %}
         </span>
         {% endif %}
         <a href="{{ post.url }}">

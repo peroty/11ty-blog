@@ -1,0 +1,13 @@
+---
+layout: layouts/base.njk
+---
+
+<article class="post-item post-type-quote">
+  <header>
+    <h1 class="post-title">Quote</h1>
+    <div class="post-meta"><time datetime="{{ page.date | w3DateFilter }}">{{ page.date | readableDate }}</time></div>
+  </header>
+  <blockquote class="quote-copy">{{ content | safe }}</blockquote>
+  {% if quoteAuthor %}<p class="quote-attribution">— {{ quoteAuthor }}</p>{% endif %}
+  {% if quoteSourceUrl %}<p><a href="{{ quoteSourceUrl }}" target="_blank" rel="noopener noreferrer">Source ↗</a></p>{% endif %}
+</article>

@@ -8,27 +8,44 @@ const siteOrigin = new URL(siteUrl).origin;
 const markdownIt = require("markdown-it");
 const fs = require("fs");
 const path = require("path");
+const outputDir = path.resolve(__dirname, '..', 'config', process.env.SITE_OUTPUT_DIR || '../_site');
 
 async function imageShortcode(src, alt, sizes = "100vw") {
   if (!src) {
     return '';
   }
-  
-  let metadata = await Image(src, {
+
+  const imageSource = /^https?:\/\//i.test(src)
+    ? src
+    : path.join(__dirname, 'images', path.basename(src));
+  if (!/^https?:\/\//i.test(src) && !fs.existsSync(imageSource)) {
+    throw new Error(`Image not found in src/images: ${src}`);
+  }
+  const isSizesValue = /\bauto\b|\b\d+(?:\.\d+)?(?:vw|px|em|rem)\b|calc\(/i.test(sizes);
+  const caption = isSizesValue ? '' : sizes;
+
+  let metadata = await Image(imageSource, {
     widths: [300, 600, 900, 1200],
     formats: ["webp", "jpeg", "png"],
-    outputDir: "./_site/img/",
+    outputDir: path.join(outputDir, "img"),
     urlPath: "/img/"
   });
 
   let imageAttributes = {
     alt,
-    sizes,
+    sizes: isSizesValue ? sizes : '100vw',
     loading: "lazy",
     decoding: "async",
   };
 
-  return Image.generateHTML(metadata, imageAttributes);
+  const html = Image.generateHTML(metadata, imageAttributes);
+  if (!caption || caption === 'Optional caption') {
+    return html;
+  }
+  const safeCaption = String(caption).replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
+  return `<figure>${html}<figcaption>${safeCaption}</figcaption></figure>`;
 }
 
 module.exports = function(eleventyConfig) {
@@ -94,15 +111,15 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/favicon.ico");
 
   eleventyConfig.on("eleventy.after", () => {
-    fs.cpSync(path.join(__dirname, "css"), path.join(__dirname, "..", "_site", "css"), {
+    fs.cpSync(path.join(__dirname, "css"), path.join(outputDir, "css"), {
       recursive: true,
       force: true
     });
-    fs.cpSync(path.join(__dirname, "images"), path.join(__dirname, "..", "_site", "images"), {
+    fs.cpSync(path.join(__dirname, "images"), path.join(outputDir, "images"), {
       recursive: true,
       force: true
     });
-    fs.cpSync(path.join(__dirname, "fonts"), path.join(__dirname, "..", "_site", "fonts"), {
+    fs.cpSync(path.join(__dirname, "fonts"), path.join(outputDir, "fonts"), {
       recursive: true,
       force: true
     });
@@ -149,12 +166,19 @@ module.exports = function(eleventyConfig) {
       .reverse();
   });
 
+  eleventyConfig.addCollection("quotes", function(collection) {
+    return collection.getFilteredByGlob("../src/quotes/**/*.md")
+      .filter(quote => !quote.data.draft)
+      .reverse();
+  });
+
   eleventyConfig.addCollection("feed", function(collection) {
     return collection.getFilteredByGlob([
       "../src/posts/**/*.md",
       "../src/notes/**/*.md",
       "../src/link-posts/**/*.md",
-      "../src/bookmarks/**/*.md"
+      "../src/bookmarks/**/*.md",
+      "../src/quotes/**/*.md"
     ]).filter(item => !item.data.draft)
       .sort((a, b) => a.date - b.date)
       .map(item => Object.assign(Object.create(item), {
@@ -172,7 +196,7 @@ module.exports = function(eleventyConfig) {
       if (item.data.tags) {
         item.data.tags.forEach(tag => {
           // Skip internal tags
-          if (["post", "note", "link", "bookmark", "feed", "all"].includes(tag)) return;
+          if (["post", "note", "link", "bookmark", "quote", "page", "feed", "all"].includes(tag)) return;
           tagCount[tag] = (tagCount[tag] || 0) + 1;
         });
       }

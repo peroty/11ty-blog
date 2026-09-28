@@ -5,7 +5,8 @@ import {
   renderPreview,
   saveEntry,
   deleteEntry,
-  uploadImages
+  uploadImages,
+  deploySite
 } from './api.js';
 import {
   createBlankEntry,
@@ -28,7 +29,8 @@ const state = {
   dirty: false,
   activeInsertTarget: 'body',
   previewTimer: null,
-  inspectorTab: 'preview'
+  inspectorTab: 'details',
+  inspectorOpen: false
 };
 
 const refs = {};
@@ -37,6 +39,8 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   cacheRefs();
+  // Keep metadata and preview beside the writing surface, below its heading.
+  document.querySelector('.editor-panel').insertBefore(refs.inspectorRail, refs.editorForm);
   bindEvents();
   await loadWorkspace();
 }
@@ -85,6 +89,10 @@ function cacheRefs() {
   refs.bookmarkUrlInput = document.getElementById('entry-bookmark-url');
   refs.quoteField = document.getElementById('quote-field');
   refs.quoteInput = document.getElementById('entry-quote');
+  refs.quoteAuthorField = document.getElementById('quote-author-field');
+  refs.quoteAuthorInput = document.getElementById('entry-quote-author');
+  refs.quoteSourceUrlField = document.getElementById('quote-source-url-field');
+  refs.quoteSourceUrlInput = document.getElementById('entry-quote-source-url');
   refs.tagChipList = document.getElementById('tag-chip-list');
   refs.tagInput = document.getElementById('tag-input');
   refs.tagSuggestions = document.getElementById('tag-suggestions');
@@ -97,8 +105,10 @@ function cacheRefs() {
   refs.imageUploadInput = document.getElementById('image-upload-input');
   refs.refreshButton = document.getElementById('refresh-button');
   refs.viewSiteButton = document.getElementById('view-site-button');
+  refs.deployButton = document.getElementById('deploy-button');
   refs.saveDraftButton = document.getElementById('save-draft-button');
   refs.publishButton = document.getElementById('publish-button');
+  refs.toggleInspectorButton = document.getElementById('toggle-inspector-button');
   refs.deleteButton = document.getElementById('delete-button');
 }
 
@@ -108,7 +118,28 @@ function bindEvents() {
   });
 
   refs.viewSiteButton.addEventListener('click', () => {
-    window.open('http://localhost:8080', '_blank');
+    window.open('http://127.0.0.1:8080', '_blank');
+  });
+
+  refs.deployButton.addEventListener('click', async () => {
+    if (state.dirty) {
+      showMessage('Save your changes before deploying.', true);
+      return;
+    }
+    if (!window.confirm('Commit blog content and push main to GitHub Pages?')) {
+      return;
+    }
+    refs.deployButton.disabled = true;
+    refs.deployButton.textContent = 'Deploying…';
+    try {
+      await deploySite();
+      showMessage('Pushed to GitHub. Pages will update shortly.');
+    } catch (error) {
+      showMessage(error.message, true);
+    } finally {
+      refs.deployButton.disabled = false;
+      refs.deployButton.textContent = 'Deploy';
+    }
   });
 
   refs.searchInput.addEventListener('input', (event) => {
@@ -145,7 +176,9 @@ function bindEvents() {
     refs.descriptionInput,
     refs.linkUrlInput,
     refs.bookmarkUrlInput,
-    refs.quoteInput
+    refs.quoteInput,
+    refs.quoteAuthorInput,
+    refs.quoteSourceUrlInput
   ].forEach((input) => {
     input.addEventListener('input', handleFieldInput);
     input.addEventListener('focus', () => {
@@ -173,6 +206,11 @@ function bindEvents() {
 
   refs.publishButton.addEventListener('click', async () => {
     await persistEntry('published');
+  });
+
+  refs.toggleInspectorButton.addEventListener('click', () => {
+    state.inspectorOpen = !state.inspectorOpen;
+    renderInspectorVisibility();
   });
 
   refs.deleteButton.addEventListener('click', async () => {
@@ -236,7 +274,7 @@ function bindEvents() {
 async function loadWorkspace(showRefreshMessage = false) {
   try {
     const [entries, tags, images] = await Promise.all([
-      fetchEntries(['posts', 'notes', 'links', 'bookmarks']),
+      fetchEntries(['posts', 'notes', 'links', 'bookmarks', 'quotes', 'pages']),
       fetchTags(),
       fetchImages()
     ]);
@@ -302,6 +340,8 @@ function getFilteredEntries() {
       entry.linkUrl,
       entry.bookmarkUrl,
       entry.quote,
+      entry.quoteAuthor,
+      entry.quoteSourceUrl,
       entry.tags.join(' ')
     ].join(' ').toLowerCase();
 
@@ -390,6 +430,7 @@ async function startNewEntry(type, requirePrompt = true) {
   }
 
   state.currentEntry = createBlankEntry(type);
+  state.inspectorOpen = ['quote', 'bookmark', 'link'].includes(type);
   state.baselineSnapshot = snapshotEntry(state.currentEntry);
   updateDirtyState(false);
   renderCurrentEntry();
@@ -404,6 +445,7 @@ async function selectEntry(entry, requirePrompt = true) {
   }
 
   state.currentEntry = structuredClone(entry);
+  state.inspectorOpen = ['quote', 'bookmark', 'link'].includes(entry.type);
   state.baselineSnapshot = snapshotEntry(state.currentEntry);
   updateDirtyState(false);
   renderCurrentEntry();
@@ -427,7 +469,7 @@ function renderCurrentEntry() {
   refs.editorEmptyState.classList.add('hidden');
   refs.editorForm.classList.remove('hidden');
   refs.editorHeaderActions.classList.remove('hidden');
-  refs.inspectorRail.classList.remove('hidden');
+  renderInspectorVisibility();
   refs.workspace.classList.remove('workspace-no-inspector');
   refs.workspace.classList.add('workspace-with-inspector');
   refs.statusPill.textContent = entry.status === 'draft' ? 'Draft' : 'Published';
@@ -454,6 +496,10 @@ function renderCurrentEntry() {
   refs.bookmarkUrlInput.value = entry.bookmarkUrl || '';
   refs.quoteField.classList.toggle('hidden', !def.showQuote);
   refs.quoteInput.value = entry.quote || '';
+  refs.quoteAuthorField.classList.toggle('hidden', !def.showQuoteAuthor);
+  refs.quoteAuthorInput.value = entry.quoteAuthor || '';
+  refs.quoteSourceUrlField.classList.toggle('hidden', !def.showQuoteSourceUrl);
+  refs.quoteSourceUrlInput.value = entry.quoteSourceUrl || '';
 
   renderTags();
   renderFileInfo();
@@ -483,6 +529,12 @@ function renderIdleWorkspace() {
     </div>
   `;
   renderEntryList();
+}
+
+function renderInspectorVisibility() {
+  refs.inspectorRail.classList.toggle('hidden', !state.inspectorOpen);
+  refs.toggleInspectorButton.textContent = state.inspectorOpen ? 'Hide details' : 'Details & preview';
+  refs.toggleInspectorButton.setAttribute('aria-expanded', String(state.inspectorOpen));
 }
 
 function localDateTimeValue(value) {
@@ -577,7 +629,7 @@ function renderImages() {
       if (button.dataset.imageAction === 'markdown') {
         insertIntoActiveField(`![Alt text](/images/${filename})`);
       } else {
-        insertIntoActiveField(`{% image "${filename}", "Alt text", "Optional caption" %}`);
+        insertIntoActiveField(`{% image "${filename}", "Alt text" %}`);
       }
     });
   });
@@ -632,6 +684,8 @@ function syncEntryFromForm() {
   entry.linkUrl = refs.linkUrlInput.value.trim();
   entry.bookmarkUrl = refs.bookmarkUrlInput.value.trim();
   entry.quote = refs.quoteInput.value.trim();
+  entry.quoteAuthor = refs.quoteAuthorInput.value.trim();
+  entry.quoteSourceUrl = refs.quoteSourceUrlInput.value.trim();
   if (!entry.filename) {
     entry.slug = entry.title
       ? entry.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -686,7 +740,7 @@ function getValidationErrors(entry, targetStatus) {
   }
 
   if (targetStatus === 'published') {
-    if (entry.type !== 'note' && !entry.title) {
+    if (entry.type !== 'note' && entry.type !== 'quote' && !entry.title) {
       errors.push('Title is required for published entries of this type.');
     }
     if (entry.type === 'link' && !entry.linkUrl) {
@@ -700,7 +754,7 @@ function getValidationErrors(entry, targetStatus) {
     }
   }
 
-  ['linkUrl', 'bookmarkUrl'].forEach((field) => {
+  ['linkUrl', 'bookmarkUrl', 'quoteSourceUrl'].forEach((field) => {
     if (!entry[field]) {
       return;
     }
@@ -708,7 +762,7 @@ function getValidationErrors(entry, targetStatus) {
       // eslint-disable-next-line no-new
       new URL(entry[field]);
     } catch {
-      errors.push(`${field === 'linkUrl' ? 'Link' : 'Bookmark'} URL must be valid.`);
+      errors.push(`${field === 'linkUrl' ? 'Link' : field === 'bookmarkUrl' ? 'Bookmark' : 'Quote source'} URL must be valid.`);
     }
   });
 
@@ -810,6 +864,8 @@ function snapshotEntry(entry) {
     linkUrl: entry.linkUrl,
     bookmarkUrl: entry.bookmarkUrl,
     quote: entry.quote,
+    quoteAuthor: entry.quoteAuthor,
+    quoteSourceUrl: entry.quoteSourceUrl,
     body: entry.body,
     status: entry.status,
     extraFrontmatter: entry.extraFrontmatter

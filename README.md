@@ -1,6 +1,6 @@
 # 11ty Blog
 
-A personal Eleventy blog with long-form posts, notes, link posts, and bookmarks. GitHub Pages is the current publishing target; a DreamHost upload script is available for later.
+A personal Eleventy blog with posts, notes, quotes, bookmarks, links, and Markdown pages. GitHub Pages is the current publishing target; a DreamHost upload script is available for later.
 
 ## What This Repo Contains
 
@@ -12,20 +12,16 @@ A personal Eleventy blog with long-form posts, notes, link posts, and bookmarks.
 
 ## Local Setup
 
-This repo now includes a small root-level `package.json` so you can run the common commands from the repo root, while the actual Eleventy dependencies and scripts still live under `config/`.
+Eleventy and the local editor use project dependencies in `config/`. Install them once, then use [just](https://github.com/casey/just#installation) from the repository root:
 
 ```bash
-# Install dependencies (Eleventy is installed with the project)
 npm ci --prefix config
-
-# Start the local preview server
-npm run start
-
-# Start the admin UI in a second terminal
-npm run admin
+just serve
 ```
 
-Eleventy will build the site into `_site/` and serve it locally, usually at `http://localhost:8080`. The admin UI runs separately at `http://localhost:3000`.
+Open the editor at `http://127.0.0.1:3000` and the live site preview at `http://127.0.0.1:8080`. `just serve` starts both; press Ctrl+C to stop them. If you do not have `just` yet, `npm run start` and `npm run admin` work in separate terminals.
+
+The editor saves Markdown and uploaded images under `src/`. It can create Posts, Notes, Quotes, Bookmarks, Pages, and the older Link Posts. Use **Save Draft** to keep an entry out of the generated site, **Publish** to include it in the local build, and **Deploy** when you want to push published content to GitHub Pages. The preview and metadata controls sit behind **Details & preview** so the Markdown writing area stays visible.
 
 ## Useful Commands
 
@@ -36,8 +32,11 @@ npm run build
 # Rebuild on file changes without serving
 npm run watch
 
-# Run the deployment script
-npm run deploy
+# Test, build, commit content changes, and push main to GitHub Pages
+just deploy
+
+# Check the Pages build without committing or pushing
+DRY_RUN=1 just deploy
 ```
 
 ## Working On Content
@@ -46,24 +45,22 @@ npm run deploy
 - Notes: `src/notes/`
 - Link posts: `src/link-posts/`
 - Bookmarks: `src/bookmarks/`
+- Quotes: `src/quotes/`
+- Pages: `src/pages/` (including About)
 - Main layouts: `src/_includes/layouts/`
 - Global metadata: `src/_data/metadata.json`
 - CSS: `src/css/`
 
-## Notes From This Review
-
-- The generated site output is `_site/`, not `output/`.
-- The Eleventy config file lives at `src/.eleventy.js`.
-- The root `package.json` is a lightweight wrapper around the real scripts in `config/package.json`.
-
 ## Publish on GitHub Pages
 
-The [Pages workflow](.github/workflows/pages.yml) builds and deploys this site whenever `main` is pushed to the `peroty/11ty-blog` repository. It publishes at `https://peroty.github.io/11ty-blog/` and leaves the older `peroty.github.io` site alone. The workflow adjusts links and assets for the `/11ty-blog/` path. To check that build locally:
+The [Pages workflow](.github/workflows/pages.yml) builds and deploys this site whenever `main` is pushed to `peroty/11ty-blog`. It publishes at `https://peroty.github.io/11ty-blog/`. `just deploy` runs the editor tests and a Pages build into `_site-pages/`, commits changes in the content and image directories, and pushes `main`. It stops if code or configuration changes are uncommitted, so those can be reviewed separately. Draft Markdown files may be committed to the source repository, but Eleventy excludes them from the public site.
+
+To check the GitHub Pages build manually:
 
 ```bash
 PAGES_BASE_PATH=/11ty-blog SITE_URL=https://peroty.github.io/11ty-blog npm run build:pages
 ```
 
-In GitHub, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**. Your local admin saves Markdown and images into `src/`; commit and push those changes to publish them. The admin server is for local use and is excluded from the public site build.
+The editor server binds to localhost and is excluded from the public build.
 
-For a later DreamHost move, see [deployment notes](docs/DEPLOYMENT.md). Run `npm run build` for the normal root-path version of the site before uploading it there.
+For a later DreamHost move, see [deployment notes](docs/DEPLOYMENT.md). Its upload command is `npm run deploy:dreamhost`.

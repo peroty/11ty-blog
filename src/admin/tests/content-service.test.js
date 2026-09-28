@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   generateFilename,
+  buildPreviewUrl,
   normalizeEntryPayload,
   parseEntryFile,
   renderPreview,
@@ -55,7 +56,11 @@ Body copy.
   const serialized = serializeEntry('posts', parsed);
   assert.match(serialized, /customField: still-here/);
   assert.match(serialized, /draft: true/);
+  assert.match(serialized, /permalink: false/);
   assert.match(serialized, /Body copy\./);
+
+  parsed.status = 'published';
+  assert.doesNotMatch(serializeEntry('posts', parsed), /permalink: false/);
 });
 
 test('validateEntry blocks publish when required content is missing', () => {
@@ -90,4 +95,39 @@ test('renderPreview returns article HTML with quote and tags', () => {
   assert.match(preview.html, /#reading/);
   assert.match(preview.html, /Skim first, then dive deeper/);
   assert.match(preview.html, /href="https:\/\/example\.com\/article"/);
+});
+
+test('a standalone quote keeps attribution and publishes at its own URL', () => {
+  const entry = normalizeEntryPayload('quotes', {
+    date: '2026-09-28',
+    body: 'Words worth remembering.',
+    quoteAuthor: 'A writer',
+    quoteSourceUrl: 'https://example.com/source',
+    status: 'published'
+  });
+
+  assert.deepEqual(validateEntry('quotes', entry, 'published'), []);
+  assert.equal(generateFilename('quotes', entry), '2026-09-28-quote.md');
+  const raw = serializeEntry('quotes', entry);
+  assert.match(raw, /layout: layouts\/quote\.njk/);
+  assert.match(raw, /quoteAuthor: A writer/);
+  assert.equal(parseEntryFile('quotes', '2026-09-28-quote.md', raw).quoteAuthor, 'A writer');
+  assert.equal(buildPreviewUrl('quotes', '2026-09-28-quote.md'), '/quotes/2026-09-28-quote/');
+});
+
+test('a page gets a root URL and cannot take a collection route', () => {
+  const entry = normalizeEntryPayload('pages', {
+    title: 'Now',
+    date: '2026-09-28',
+    body: 'What I am doing now.',
+    status: 'published'
+  });
+
+  assert.deepEqual(validateEntry('pages', entry, 'published'), []);
+  assert.equal(generateFilename('pages', entry), 'now.md');
+  assert.equal(buildPreviewUrl('pages', 'now.md'), '/now/');
+  assert.match(serializeEntry('pages', entry), /permalink: \/now\//);
+
+  const reserved = normalizeEntryPayload('pages', { ...entry, title: 'Quotes', slug: 'quotes' });
+  assert.match(validateEntry('pages', reserved, 'published').join(' '), /already used/);
 });

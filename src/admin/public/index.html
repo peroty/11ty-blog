@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog Admin V2</title>
+  <title>Dream Sequence editor</title>
   <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/editor-theme.css">
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Local 11ty Authoring</p>
-        <h1>Blog Admin V2</h1>
+        <p class="eyebrow">Local writing desk</p>
+        <h1>Dream Sequence <em>editor</em></h1>
       </div>
       <div class="topbar-actions">
         <button class="button button-ghost" id="refresh-button" type="button">Refresh</button>
         <button class="button button-ghost" id="view-site-button" type="button">View Site</button>
+        <button class="button button-strong" id="deploy-button" type="button">Deploy</button>
       </div>
     </header>
 
@@ -53,6 +55,8 @@
                   <option value="note">Notes</option>
                   <option value="link">Links</option>
                   <option value="bookmark">Bookmarks</option>
+                  <option value="quote">Quotes</option>
+                  <option value="page">Pages</option>
                 </select>
               </label>
 
@@ -75,8 +79,10 @@
             <div class="new-entry-stack">
               <button class="button button-ghost" data-new-entry="post" type="button">New Post</button>
               <button class="button button-ghost" data-new-entry="note" type="button">New Note</button>
-              <button class="button button-ghost" data-new-entry="link" type="button">New Link</button>
+              <button class="button button-ghost" data-new-entry="quote" type="button">New Quote</button>
               <button class="button button-ghost" data-new-entry="bookmark" type="button">New Bookmark</button>
+              <button class="button button-ghost" data-new-entry="page" type="button">New Page</button>
+              <button class="button button-ghost" data-new-entry="link" type="button">New Link</button>
             </div>
           </div>
 
@@ -102,6 +108,7 @@
                 <span id="entry-status-pill" class="status-pill status-pill-neutral hidden">Draft</span>
               </div>
               <div class="action-row">
+                <button class="button button-ghost" id="toggle-inspector-button" type="button" aria-expanded="false">Details &amp; preview</button>
                 <button class="button button-ghost" id="save-draft-button" type="button">Save Draft</button>
                 <button class="button button-strong" id="publish-button" type="button">Publish</button>
               </div>
@@ -111,7 +118,7 @@
           <div id="editor-empty-state" class="editor-empty-state">
             <div class="empty-card empty-card-large">
               <h3>Nothing open yet</h3>
-              <p>Use the library to open an existing entry, or create a new post, note, link, or bookmark from the left side.</p>
+              <p>Open something from the library, or start a post, note, quote, bookmark, or page.</p>
             </div>
           </div>
 
@@ -184,6 +191,16 @@
                     <textarea id="entry-quote" rows="5" data-insert-target="quote" placeholder="Optional pull quote"></textarea>
                   </label>
 
+                  <label id="quote-author-field" class="field hidden">
+                    <span>Attribution</span>
+                    <input id="entry-quote-author" type="text" placeholder="Who said it?">
+                  </label>
+
+                  <label id="quote-source-url-field" class="field hidden">
+                    <span>Source URL</span>
+                    <input id="entry-quote-source-url" type="url" placeholder="https://example.com">
+                  </label>
+
                   <div class="field">
                     <span>Tags</span>
                     <div id="tag-chip-list" class="tag-chip-list"></div>
@@ -193,32 +210,37 @@
                 </div>
               </div>
 
-              <div class="compact-section">
-                <h3>Validation</h3>
-                <ul id="validation-list" class="validation-list"></ul>
-              </div>
+              <details class="advanced-details">
+                <summary>Publishing details</summary>
+                <div class="advanced-details-grid">
+                  <div class="compact-section">
+                    <h3>Validation</h3>
+                    <ul id="validation-list" class="validation-list"></ul>
+                  </div>
 
-              <div class="compact-section">
-                <h3>File Info</h3>
-                <dl class="meta-list">
-                  <div>
-                    <dt>Filename</dt>
-                    <dd id="file-name">Not saved yet</dd>
+                  <div class="compact-section">
+                    <h3>File Info</h3>
+                    <dl class="meta-list">
+                      <div>
+                        <dt>Filename</dt>
+                        <dd id="file-name">Not saved yet</dd>
+                      </div>
+                      <div>
+                        <dt>Slug</dt>
+                        <dd id="file-slug">n/a</dd>
+                      </div>
+                      <div>
+                        <dt>Updated</dt>
+                        <dd id="file-updated">n/a</dd>
+                      </div>
+                      <div>
+                        <dt>Preview</dt>
+                        <dd id="file-preview"><span class="muted">Save to get a permalink</span></dd>
+                      </div>
+                    </dl>
                   </div>
-                  <div>
-                    <dt>Slug</dt>
-                    <dd id="file-slug">n/a</dd>
-                  </div>
-                  <div>
-                    <dt>Updated</dt>
-                    <dd id="file-updated">n/a</dd>
-                  </div>
-                  <div>
-                    <dt>Preview</dt>
-                    <dd id="file-preview"><span class="muted">Save to get a permalink</span></dd>
-                  </div>
-                </dl>
-              </div>
+                </div>
+              </details>
             </div>
           </div>
 

@@ -10,7 +10,7 @@ if (!siteUrl || new URL(siteUrl).pathname.replace(/\/$/, '') !== prefix) {
   throw new Error('Set SITE_URL to the full GitHub Pages project URL');
 }
 
-const outputDir = path.resolve(__dirname, '..', '_site');
+const outputDir = path.resolve(__dirname, '..', 'config', process.env.SITE_OUTPUT_DIR || '../_site');
 const origin = new URL(siteUrl).origin;
 
 function rewriteDirectory(dir) {

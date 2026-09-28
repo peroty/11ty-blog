@@ -48,10 +48,34 @@ const TYPE_CONFIG = {
     titled: true,
     dateMode: 'date',
     publishRequired: ['title', 'bookmarkUrl']
+  },
+  quotes: {
+    apiType: 'quotes',
+    entryType: 'quote',
+    dir: 'quotes',
+    layout: 'layouts/quote.njk',
+    urlPrefix: '/quotes/',
+    titled: false,
+    dateMode: 'date',
+    publishRequired: ['body']
+  },
+  pages: {
+    apiType: 'pages',
+    entryType: 'page',
+    dir: 'pages',
+    layout: 'layouts/page-panel.njk',
+    urlPrefix: '/',
+    titled: true,
+    dateMode: 'date',
+    publishRequired: ['title', 'body']
   }
 };
 
-const INTERNAL_TAGS = new Set(['post', 'note', 'link', 'bookmark', 'all']);
+const INTERNAL_TAGS = new Set(['post', 'note', 'link', 'bookmark', 'quote', 'page', 'all']);
+const RESERVED_PAGE_SLUGS = new Set([
+  'archives', 'bookmarks', 'css', 'feed', 'font-preview', 'images', 'js',
+  'link-posts', 'notes', 'photos', 'posts', 'quotes', 'style-guide', 'tags'
+]);
 const markdown = new MarkdownIt({
   html: true,
   linkify: true
@@ -174,7 +198,17 @@ function extractSlugFromFilename(filename) {
 function buildPreviewUrl(apiType, filename) {
   const config = getTypeConfig(apiType);
   const base = path.basename(filename, '.md');
+  if (apiType === 'pages') {
+    return `/${base}/`;
+  }
   return `${config.urlPrefix}${base}/`;
+}
+
+function assertSafeFilename(filename) {
+  if (typeof filename !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.md$/.test(filename)) {
+    throw new ValidationError('Invalid Markdown filename');
+  }
+  return filename;
 }
 
 function getDefaultDate(config) {
@@ -199,10 +233,15 @@ function removeManagedKeys(frontmatter) {
     'linkUrl',
     'bookmarkUrl',
     'quote',
+    'quoteAuthor',
+    'quoteSourceUrl',
     'draft'
   ].forEach((key) => {
     delete extra[key];
   });
+  if (frontmatter.draft && frontmatter.permalink === false) {
+    delete extra.permalink;
+  }
   return extra;
 }
 
@@ -227,6 +266,8 @@ function normalizeEntryPayload(apiType, payload = {}, fallbackEntry = null) {
     linkUrl: cleanString(source.linkUrl),
     bookmarkUrl: cleanString(source.bookmarkUrl),
     quote: cleanMultilineString(source.quote),
+    quoteAuthor: cleanString(source.quoteAuthor),
+    quoteSourceUrl: cleanString(source.quoteSourceUrl),
     body,
     previewUrl: source.previewUrl || fallbackEntry?.previewUrl || null,
     updatedAt: source.updatedAt || fallbackEntry?.updatedAt || null,
@@ -261,7 +302,11 @@ function validateEntry(apiType, entry, targetStatus = entry.status) {
     }
   }
 
-  ['linkUrl', 'bookmarkUrl'].forEach((field) => {
+  if (apiType === 'pages' && RESERVED_PAGE_SLUGS.has(entry.slug)) {
+    errors.push('This page URL is already used by the site. Choose a different title.');
+  }
+
+  ['linkUrl', 'bookmarkUrl', 'quoteSourceUrl'].forEach((field) => {
     if (!entry[field]) {
       return;
     }
@@ -269,7 +314,7 @@ function validateEntry(apiType, entry, targetStatus = entry.status) {
       // eslint-disable-next-line no-new
       new URL(entry[field]);
     } catch {
-      errors.push(`${field === 'linkUrl' ? 'Link' : 'Bookmark'} URL must be valid.`);
+      errors.push(`${field === 'linkUrl' ? 'Link' : field === 'bookmarkUrl' ? 'Bookmark' : 'Quote source'} URL must be valid.`);
     }
   });
 
@@ -278,6 +323,12 @@ function validateEntry(apiType, entry, targetStatus = entry.status) {
 
 function generateFilename(apiType, entry) {
   const config = getTypeConfig(apiType);
+  if (apiType === 'pages') {
+    return `${entry.slug || slugify(entry.title)}.md`;
+  }
+  if (apiType === 'quotes') {
+    return `${formatDateOnly(entry.date)}-quote.md`;
+  }
   if (config.titled) {
     return `${formatDateOnly(entry.date)}-${entry.slug || slugify(entry.title)}.md`;
   }
@@ -337,12 +388,26 @@ function buildFrontmatter(apiType, entry) {
   if (entry.quote) {
     frontmatter.quote = entry.quote;
   }
+  if (entry.quoteAuthor) {
+    frontmatter.quoteAuthor = entry.quoteAuthor;
+  }
+  if (entry.quoteSourceUrl) {
+    frontmatter.quoteSourceUrl = entry.quoteSourceUrl;
+  }
+  if (apiType === 'pages') {
+    frontmatter.permalink = `/${entry.slug}/`;
+  }
   if (entry.status === 'draft') {
     frontmatter.draft = true;
+    frontmatter.permalink = false;
   }
 
+  const extraFrontmatter = normalizeExtraFrontmatter(entry.extraFrontmatter);
+  if (apiType === 'pages') {
+    delete extraFrontmatter.permalink;
+  }
   return {
-    ...normalizeExtraFrontmatter(entry.extraFrontmatter),
+    ...extraFrontmatter,
     ...frontmatter
   };
 }
@@ -382,6 +447,8 @@ function parseEntryFile(apiType, filename, fileContents, stats = null) {
     linkUrl: data.linkUrl,
     bookmarkUrl: data.bookmarkUrl,
     quote: data.quote,
+    quoteAuthor: data.quoteAuthor,
+    quoteSourceUrl: data.quoteSourceUrl,
     body: parsed.content,
     previewUrl: buildPreviewUrl(apiType, filename),
     updatedAt: stats?.mtime?.toISOString() || null,
@@ -392,7 +459,7 @@ function parseEntryFile(apiType, filename, fileContents, stats = null) {
 }
 
 async function readEntry(apiType, filename) {
-  const filePath = path.join(getContentDir(apiType), filename);
+  const filePath = path.join(getContentDir(apiType), assertSafeFilename(filename));
   const [fileContents, stats] = await Promise.all([
     fs.readFile(filePath, 'utf-8'),
     fs.stat(filePath)
@@ -442,23 +509,36 @@ async function writeEntry(apiType, payload, options = {}) {
     throw new ValidationError('Entry validation failed', validationErrors);
   }
 
-  const desiredFilename = existingEntry
-    ? existingEntry.filename
-    : (payload.filename || generateFilename(apiType, entry));
+  const renamingUntitledPage = apiType === 'pages'
+    && existingEntry
+    && /^untitled(?:-\d+)?$/.test(existingEntry.slug)
+    && entry.title;
+  const desiredFilename = renamingUntitledPage
+    ? generateFilename(apiType, { ...entry, slug: slugify(entry.title) })
+    : existingEntry
+      ? existingEntry.filename
+      : (payload.filename || generateFilename(apiType, entry));
+  assertSafeFilename(desiredFilename);
 
-  const filename = existingEntry
+  const filename = existingEntry && !renamingUntitledPage
     ? desiredFilename
     : await ensureUniqueFilename(apiType, desiredFilename);
+  if (apiType === 'pages') {
+    entry.slug = path.basename(filename, '.md');
+  }
 
   const filePath = path.join(dirPath, filename);
   const serialized = serializeEntry(apiType, { ...entry, filename });
 
   await fs.writeFile(filePath, serialized, 'utf-8');
+  if (renamingUntitledPage && filename !== existingEntry.filename) {
+    await fs.unlink(path.join(dirPath, existingEntry.filename));
+  }
   return readEntry(apiType, filename);
 }
 
 async function deleteEntry(apiType, filename) {
-  await fs.unlink(path.join(getContentDir(apiType), filename));
+  await fs.unlink(path.join(getContentDir(apiType), assertSafeFilename(filename)));
 }
 
 async function collectTagMetadata() {
@@ -520,7 +600,7 @@ function formatReadableDate(value, apiType) {
 function renderPreview(apiType, payload) {
   const entry = normalizeEntryPayload(apiType, payload);
   const config = getTypeConfig(apiType);
-  const title = config.titled ? (entry.title || `Untitled ${config.entryType}`) : 'Note';
+  const title = config.titled ? (entry.title || `Untitled ${config.entryType}`) : config.entryType === 'quote' ? 'Quote' : 'Note';
   const bodyHtml = entry.body
     ? markdown.render(entry.body)
     : '<p class="preview-empty">Start writing to see the preview.</p>';
@@ -539,6 +619,12 @@ function renderPreview(apiType, payload) {
   }
   if (entry.bookmarkUrl) {
     leadMarkup += `<p class="preview-source"><a href="${escapeHtml(entry.bookmarkUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(entry.bookmarkUrl)}</a></p>`;
+  }
+  if (entry.quoteAuthor) {
+    leadMarkup += `<p class="preview-source">— ${escapeHtml(entry.quoteAuthor)}</p>`;
+  }
+  if (entry.quoteSourceUrl) {
+    leadMarkup += `<p class="preview-source"><a href="${escapeHtml(entry.quoteSourceUrl)}" target="_blank" rel="noopener noreferrer">Source ↗</a></p>`;
   }
 
   const html = `

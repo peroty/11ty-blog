@@ -2,7 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs').promises;
 const path = require('path');
-const cors = require('cors');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
 const {
   TYPE_CONFIG,
   ValidationError,
@@ -17,8 +18,18 @@ const {
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const CONTENT_ROOT = path.resolve(__dirname, '..');
+const PROJECT_ROOT = path.resolve(CONTENT_ROOT, '..');
+const runFile = promisify(execFile);
 
-app.use(cors());
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  const origin = req.get('origin');
+  if (origin && ![`http://127.0.0.1:${PORT}`, `http://localhost:${PORT}`].includes(origin)) {
+    res.status(403).json({ error: 'The editor only accepts requests from its local page.' });
+    return;
+  }
+  next();
+});
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -60,6 +71,13 @@ function assertValidApiType(type) {
   }
 }
 
+function imagePathFor(filename) {
+  if (typeof filename !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:jpe?g|png|gif|webp)$/i.test(filename)) {
+    throw new ValidationError('Invalid image filename');
+  }
+  return path.join(CONTENT_ROOT, 'images', filename);
+}
+
 app.get('/api/meta/tags', async (req, res, next) => {
   try {
     const tags = await collectTagMetadata();
@@ -76,6 +94,20 @@ app.post('/api/preview', async (req, res, next) => {
     res.json(renderPreview(type, entry || req.body));
   } catch (error) {
     next(error);
+  }
+});
+
+app.post('/api/deploy', async (req, res, next) => {
+  try {
+    const { stdout } = await runFile('bash', [path.join(PROJECT_ROOT, 'scripts', 'deploy-pages.sh')], {
+      cwd: PROJECT_ROOT,
+      timeout: 180000,
+      maxBuffer: 1024 * 1024
+    });
+    res.json({ success: true, message: 'Pushed to GitHub Pages.', output: stdout });
+  } catch (error) {
+    const detail = (error.stderr || error.stdout || error.message || 'Deployment failed').trim();
+    res.status(500).json({ error: detail.slice(-1200) });
   }
 });
 
@@ -98,7 +130,7 @@ app.post('/api/images/upload', upload.single('image'), async (req, res, next) =>
 
 app.get('/api/images/serve/:filename', async (req, res, next) => {
   try {
-    const imagePath = path.join(CONTENT_ROOT, 'images', req.params.filename);
+    const imagePath = imagePathFor(req.params.filename);
     await fs.access(imagePath);
     res.sendFile(imagePath);
   } catch (error) {
@@ -132,7 +164,7 @@ app.get('/api/images', async (req, res, next) => {
 
 app.delete('/api/images/:filename', async (req, res, next) => {
   try {
-    await fs.unlink(path.join(CONTENT_ROOT, 'images', req.params.filename));
+    await fs.unlink(imagePathFor(req.params.filename));
     res.json({ success: true, message: 'Image deleted successfully' });
   } catch (error) {
     next(error);
@@ -213,6 +245,5 @@ app.use((error, req, res, next) => {
 });
 
 app.listen(PORT, '127.0.0.1', () => {
-  console.log(`\nBlog Admin V2 running at http://localhost:${PORT}`);
-  console.log('Local 11ty authoring workspace ready.\n');
+  console.log(`\nDream Sequence editor: http://127.0.0.1:${PORT}\n`);
 });

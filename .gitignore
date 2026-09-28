@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 _site/
+_site-pages/
 .sass-cache/
 .cache/
 

@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = '/api';
 
 async function request(url, options = {}) {
   const response = await fetch(url, options);
@@ -72,6 +72,10 @@ async function uploadImages(files) {
   return Promise.all(uploads);
 }
 
+async function deploySite() {
+  return request(`${API_BASE}/deploy`, { method: 'POST' });
+}
+
 export {
   fetchEntries,
   fetchImages,
@@ -79,5 +83,6 @@ export {
   renderPreview,
   saveEntry,
   deleteEntry,
-  uploadImages
+  uploadImages,
+  deploySite
 };

@@ -67,7 +67,7 @@ chmod +x scripts/deploy.sh
 Every time you want to publish changes:
 
 ```bash
-npm run deploy
+npm run deploy:dreamhost
 ```
 
 That's it! The script will:
@@ -101,7 +101,7 @@ npm start
 # Visit http://localhost:8080
 
 # 3. When happy, deploy
-npm run deploy
+npm run deploy:dreamhost
 ```
 
 ## Understanding the Build Process

@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "A beautiful blog with posts and notes, inspired by arcticpalace.org/journal",
   "scripts": {
-    "start": "NODE_PATH=./node_modules ./node_modules/.bin/eleventy --config=../src/.eleventy.js --input=../src --output=../_site --serve",
-    "build": "node -e \"require('fs').rmSync('../_site', { recursive: true, force: true })\" && NODE_PATH=./node_modules ./node_modules/.bin/eleventy --config=../src/.eleventy.js --input=../src --output=../_site",
+    "start": "NODE_PATH=./node_modules ./node_modules/.bin/eleventy --config=../src/.eleventy.js --input=../src --output=../_site --serve --port=${SITE_PORT:-8080}",
+    "build": "node ../scripts/clean-output.js && NODE_PATH=./node_modules ./node_modules/.bin/eleventy --config=../src/.eleventy.js --input=../src --output=${SITE_OUTPUT_DIR:-../_site}",
     "watch": "NODE_PATH=./node_modules ./node_modules/.bin/eleventy --config=../src/.eleventy.js --input=../src --output=../_site --watch",
-    "deploy": "bash ../scripts/deploy.sh",
+    "deploy": "bash ../scripts/deploy-pages.sh",
+    "deploy:dreamhost": "bash ../scripts/deploy.sh",
     "admin": "NODE_PATH=./node_modules node ../src/admin/server.js",
     "test:admin": "NODE_PATH=./node_modules node --test ../src/admin/tests/*.test.js"
   },

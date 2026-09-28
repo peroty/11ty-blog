@@ -9,6 +9,7 @@
     "watch": "npm run watch --prefix config",
     "admin": "npm run admin --prefix config",
     "test:admin": "npm run test:admin --prefix config",
-    "deploy": "npm run deploy --prefix config"
+    "deploy": "npm run deploy --prefix config",
+    "deploy:dreamhost": "npm run deploy:dreamhost --prefix config"
   }
 }

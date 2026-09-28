@@ -9,7 +9,22 @@ permalink: /quotes/
   <p class="tagline">Words worth remembering</p>
 </header>
 
+{% set quoteList = collections.quotes %}
 {% set linkList = collections.linkPosts %}
+{% if quoteList.length %}
+  {% for quote in quoteList %}
+    <article class="post-item post-type-quote">
+      <header>
+        <h2 class="post-title"><span class="post-type-icon title-icon">❝</span> <a href="{{ quote.url }}">Quote</a></h2>
+        <div class="post-meta"><time datetime="{{ quote.date | w3DateFilter }}">{{ quote.date | readableDate }}</time></div>
+      </header>
+      <blockquote class="quote-copy">{{ quote.templateContent | safe }}</blockquote>
+      {% if quote.data.quoteAuthor %}<p class="quote-attribution">— {{ quote.data.quoteAuthor }}</p>{% endif %}
+      {% if quote.data.quoteSourceUrl %}<p><a href="{{ quote.data.quoteSourceUrl }}" target="_blank" rel="noopener noreferrer">Source ↗</a></p>{% endif %}
+      <p class="permalink-line"><a href="{{ quote.url }}" class="permalink-link">Permalink</a></p>
+    </article>
+  {% endfor %}
+{% endif %}
 {% if linkList.length %}
   {% for link in linkList %}
     <article class="post-item post-type-link">
@@ -50,6 +65,6 @@ permalink: /quotes/
       </div>
     </article>
   {% endfor %}
-{% else %}
+{% elif not quoteList.length %}
   <p>No quotes yet.</p>
 {% endif %}

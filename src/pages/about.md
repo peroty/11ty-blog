@@ -40,6 +40,6 @@ I co-host [Two Titans and a Hunter](https://twotitansandahunter.podbean.com), a 
 
 ## About This Site
 
-This blog is built with 11ty v3, a modern static site generator. The entire site is generated from Markdown files and deployed to shared hosting via a simple rsync script - no GitHub Actions, no complex CI/CD pipelines. Just write, build, and upload.
+This blog is built with 11ty v3 from Markdown files. I write locally and publish it to GitHub Pages.
 
 The source code and deployment setup are documented in my [Getting Started with 11ty](/posts/2026-01-08-getting-started-with-11ty/) post.
