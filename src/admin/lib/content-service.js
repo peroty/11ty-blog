@@ -6,7 +6,9 @@ const MarkdownIt = require('markdown-it');
 const markdownItAnchor = require('markdown-it-anchor');
 const markdownItFootnote = require('markdown-it-footnote');
 
-const CONTENT_ROOT = path.resolve(__dirname, '../..');
+const CONTENT_ROOT = process.env.EDITOR_CONTENT_ROOT || path.resolve(__dirname, '../..');
+const DRAFT_ROOT = path.join(path.dirname(CONTENT_ROOT), '.local-drafts');
+const PRIVATE_IMAGES = path.join(DRAFT_ROOT, 'images');
 
 const TYPE_CONFIG = {
   posts: {
@@ -102,6 +104,66 @@ function getTypeConfig(apiType) {
 
 function getContentDir(apiType) {
   return path.join(CONTENT_ROOT, getTypeConfig(apiType).dir);
+}
+
+function getDraftDir(apiType) {
+  return path.join(DRAFT_ROOT, getTypeConfig(apiType).dir);
+}
+
+// Upgrade old draft files without overwriting a private working copy.
+async function migrateDrafts(apiType) {
+  const dir = getContentDir(apiType);
+  await fs.mkdir(dir, { recursive: true });
+  await fs.mkdir(getDraftDir(apiType), { recursive: true });
+  for (const filename of await fs.readdir(dir)) {
+    if (!filename.endsWith('.md')) continue;
+    const source = path.join(dir, filename);
+    const text = await fs.readFile(source, 'utf8');
+    if (!matter(text).data.draft) continue;
+    const target = path.join(getDraftDir(apiType), filename);
+    if (await exists(target)) {
+      if (await fs.readFile(target, 'utf8') !== text) {
+        throw new ValidationError(`Conflicting legacy draft: ${filename}. Both copies were preserved.`);
+      }
+    } else {
+      await fs.writeFile(target, text, { flag: 'wx' });
+    }
+    await fs.unlink(source);
+  }
+}
+
+async function promoteImages(entry) {
+  const text = serializeEntry(entry.apiType, entry);
+  const names = new Set(Array.from(text.matchAll(/\/images\/([a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:jpe?g|png|gif|webp))/gi), m => m[1]));
+  for (const match of text.matchAll(/{%\s*image\s+["']([^"']+)["']/g)) {
+    names.add(path.basename(match[1]));
+  }
+  await fs.mkdir(path.join(CONTENT_ROOT, 'images'), { recursive: true });
+  const copies = [];
+  for (const name of names) {
+    const source = path.join(PRIVATE_IMAGES, name);
+    if (!(await exists(source))) continue;
+    const target = path.join(CONTENT_ROOT, 'images', name);
+    // Check every collision before copying anything into public storage.
+    if (await exists(target)) {
+      if (!(await fs.readFile(source)).equals(await fs.readFile(target))) {
+        throw new ValidationError(`Image already exists publicly: ${name}. Rename the private image before publishing.`);
+      }
+    } else {
+      copies.push({ source, target });
+    }
+  }
+  const created = [];
+  try {
+    for (const { source, target } of copies) {
+      await fs.copyFile(source, target, require('fs').constants.COPYFILE_EXCL);
+      created.push(target);
+    }
+  } catch (error) {
+    for (const target of created) await fs.rm(target, { force: true });
+    throw error;
+  }
+  return { names: [...names], created };
 }
 
 function slugify(value = '') {
@@ -356,7 +418,7 @@ async function ensureUniqueFilename(apiType, desiredFilename) {
   let candidate = desiredFilename;
   let counter = 2;
 
-  while (await exists(path.join(dirPath, candidate))) {
+  while (await exists(path.join(dirPath, candidate)) || await exists(path.join(getDraftDir(apiType), candidate))) {
     candidate = `${base}-${counter}${ext}`;
     counter += 1;
   }
@@ -459,29 +521,29 @@ function parseEntryFile(apiType, filename, fileContents, stats = null) {
 }
 
 async function readEntry(apiType, filename) {
-  const filePath = path.join(getContentDir(apiType), assertSafeFilename(filename));
+  await migrateDrafts(apiType);
+  const safe = assertSafeFilename(filename);
+  const privatePath = path.join(getDraftDir(apiType), safe);
+  const filePath = await exists(privatePath) ? privatePath : path.join(getContentDir(apiType), safe);
   const [fileContents, stats] = await Promise.all([
     fs.readFile(filePath, 'utf-8'),
     fs.stat(filePath)
   ]);
-  return parseEntryFile(apiType, filename, fileContents, stats);
+  return { ...parseEntryFile(apiType, filename, fileContents, stats),
+    hasPublishedVersion: filePath === privatePath && await exists(path.join(getContentDir(apiType), safe)) };
 }
 
 async function listEntries(apiType) {
+  await migrateDrafts(apiType);
   const dirPath = getContentDir(apiType);
   await fs.mkdir(dirPath, { recursive: true });
 
-  const files = (await fs.readdir(dirPath))
+  const files = [...new Set([...(await fs.readdir(dirPath)), ...(await fs.readdir(getDraftDir(apiType)))])]
     .filter((file) => file.endsWith('.md'));
 
   const entries = await Promise.all(
     files.map(async (filename) => {
-      const filePath = path.join(dirPath, filename);
-      const [fileContents, stats] = await Promise.all([
-        fs.readFile(filePath, 'utf-8'),
-        fs.stat(filePath)
-      ]);
-      return parseEntryFile(apiType, filename, fileContents, stats);
+      return readEntry(apiType, filename);
     })
   );
 
@@ -495,14 +557,15 @@ async function listEntries(apiType) {
 }
 
 async function writeEntry(apiType, payload, options = {}) {
-  const dirPath = getContentDir(apiType);
-  await fs.mkdir(dirPath, { recursive: true });
+  await migrateDrafts(apiType);
 
   const existingEntry = options.filename
     ? await readEntry(apiType, options.filename)
     : null;
 
   const entry = normalizeEntryPayload(apiType, payload, existingEntry);
+  const dirPath = entry.status === 'draft' ? getDraftDir(apiType) : getContentDir(apiType);
+  await fs.mkdir(dirPath, { recursive: true });
   const validationErrors = validateEntry(apiType, entry, entry.status);
 
   if (validationErrors.length > 0) {
@@ -530,15 +593,32 @@ async function writeEntry(apiType, payload, options = {}) {
   const filePath = path.join(dirPath, filename);
   const serialized = serializeEntry(apiType, { ...entry, filename });
 
-  await fs.writeFile(filePath, serialized, 'utf-8');
+  const tempPath = `${filePath}.${require('crypto').randomUUID()}.tmp`;
+  await fs.writeFile(tempPath, serialized, 'utf-8');
+  let promotedImages = { names: [], created: [] };
+  try {
+    if (entry.status === 'published') promotedImages = await promoteImages(entry);
+    await fs.rename(tempPath, filePath);
+  } catch (error) {
+    await fs.rm(tempPath, { force: true });
+    for (const target of promotedImages.created) await fs.rm(target, { force: true });
+    throw error;
+  }
+  if (entry.status === 'published') {
+    await fs.rm(path.join(getDraftDir(apiType), filename), { force: true });
+    for (const name of promotedImages.names) await fs.rm(path.join(PRIVATE_IMAGES, name), { force: true });
+  }
   if (renamingUntitledPage && filename !== existingEntry.filename) {
-    await fs.unlink(path.join(dirPath, existingEntry.filename));
+    await fs.rm(path.join(getDraftDir(apiType), existingEntry.filename), { force: true });
   }
   return readEntry(apiType, filename);
 }
 
 async function deleteEntry(apiType, filename) {
-  await fs.unlink(path.join(getContentDir(apiType), assertSafeFilename(filename)));
+  await migrateDrafts(apiType);
+  const safe = assertSafeFilename(filename);
+  const privatePath = path.join(getDraftDir(apiType), safe);
+  await fs.unlink(await exists(privatePath) ? privatePath : path.join(getContentDir(apiType), safe));
 }
 
 async function collectTagMetadata() {
@@ -645,12 +725,16 @@ function renderPreview(apiType, payload) {
   `;
 
   return {
-    html,
+    html: html.replace(/(<img\b[^>]*\bsrc=["'])\/images\//gi, '$1/api/images/serve/'),
     entry
   };
 }
 
 module.exports = {
+  DRAFT_ROOT,
+  PRIVATE_IMAGES,
+  getDraftDir,
+  migrateDrafts,
   TYPE_CONFIG,
   ValidationError,
   buildPreviewUrl,

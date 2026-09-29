@@ -6,6 +6,9 @@ const { execFile } = require('child_process');
 const { promisify } = require('util');
 const {
   TYPE_CONFIG,
+  DRAFT_ROOT,
+  PRIVATE_IMAGES,
+  migrateDrafts,
   ValidationError,
   collectTagMetadata,
   deleteEntry,
@@ -35,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    const uploadDir = path.join(CONTENT_ROOT, 'images');
+    const uploadDir = PRIVATE_IMAGES;
     try {
       await fs.mkdir(uploadDir, { recursive: true });
       cb(null, uploadDir);
@@ -71,17 +74,23 @@ function assertValidApiType(type) {
   }
 }
 
-function imagePathFor(filename) {
+async function imagePathFor(filename) {
   if (typeof filename !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.(?:jpe?g|png|gif|webp)$/i.test(filename)) {
     throw new ValidationError('Invalid image filename');
   }
-  return path.join(CONTENT_ROOT, 'images', filename);
+  const privatePath = path.join(PRIVATE_IMAGES, filename);
+  try {
+    await fs.access(privatePath);
+    return privatePath;
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    return path.join(CONTENT_ROOT, 'images', filename);
+  }
 }
 
 async function updateImageReferences(oldFilename, filename) {
   const folders = ['posts', 'notes', 'link-posts', 'bookmarks', 'quotes', 'pages'];
-  for (const folder of folders) {
-    const directory = path.join(CONTENT_ROOT, folder);
+  for (const directory of folders.flatMap(folder => [path.join(CONTENT_ROOT, folder), path.join(DRAFT_ROOT, folder)])) {
     let files;
     try {
       files = await fs.readdir(directory, { recursive: true });
@@ -178,7 +187,7 @@ app.post('/api/images/upload', upload.single('image'), async (req, res, next) =>
 
 app.get('/api/images/serve/:filename', async (req, res, next) => {
   try {
-    const imagePath = imagePathFor(req.params.filename);
+    const imagePath = await imagePathFor(req.params.filename);
     await fs.access(imagePath);
     res.sendFile(imagePath);
   } catch (error) {
@@ -190,12 +199,14 @@ app.get('/api/images', async (req, res, next) => {
   try {
     const imagesDir = path.join(CONTENT_ROOT, 'images');
     await fs.mkdir(imagesDir, { recursive: true });
+    await fs.mkdir(PRIVATE_IMAGES, { recursive: true });
 
-    const files = await fs.readdir(imagesDir);
+    const files = [...new Set([...(await fs.readdir(imagesDir)), ...(await fs.readdir(PRIVATE_IMAGES))])];
     const imageFiles = files.filter((file) => /\.(jpg|jpeg|png|gif|webp)$/i.test(file));
 
     const images = await Promise.all(imageFiles.map(async (filename) => {
-      const stats = await fs.stat(path.join(imagesDir, filename));
+      const imagePath = await imagePathFor(filename);
+      const stats = await fs.stat(imagePath);
       return {
         filename,
         path: `/images/${filename}`,
@@ -214,14 +225,15 @@ app.patch('/api/images/:filename', async (req, res, next) => {
   try {
     const oldFilename = req.params.filename;
     const filename = req.body?.filename;
-    const oldPath = imagePathFor(oldFilename);
-    const newPath = imagePathFor(filename);
+    const oldPath = await imagePathFor(oldFilename);
+    await imagePathFor(filename); // validate before constructing destination
+    const newPath = path.join(path.dirname(oldPath), filename);
     if (path.extname(oldFilename).toLowerCase() !== path.extname(filename).toLowerCase()) {
       throw new ValidationError('Keep the original image file extension.');
     }
     if (oldFilename !== filename) {
       try {
-        await fs.access(newPath);
+        await fs.access(await imagePathFor(filename));
         throw new ValidationError('An image with that filename already exists.');
       } catch (error) {
         if (error.code !== 'ENOENT') throw error;
@@ -247,7 +259,7 @@ app.patch('/api/images/:filename', async (req, res, next) => {
 
 app.delete('/api/images/:filename', async (req, res, next) => {
   try {
-    await fs.unlink(imagePathFor(req.params.filename));
+    await fs.unlink(await imagePathFor(req.params.filename));
     res.json({ success: true, message: 'Image deleted successfully' });
   } catch (error) {
     next(error);
@@ -337,6 +349,9 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(PORT, '127.0.0.1', () => {
+Promise.all(Object.keys(TYPE_CONFIG).map(migrateDrafts)).then(() => app.listen(PORT, '127.0.0.1', () => {
   console.log(`\nDream Sequence editor: http://127.0.0.1:${PORT}\n`);
+})).catch(error => {
+  console.error(error.message);
+  process.exitCode = 1;
 });

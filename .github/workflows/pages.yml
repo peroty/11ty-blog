@@ -27,6 +27,7 @@ jobs:
           cache-dependency-path: config/package-lock.json
       - uses: actions/configure-pages@v5
       - run: npm ci --prefix config
+      - run: node scripts/check-public-content.js
       - run: npm run test:admin
       - run: npm run build:pages
         env:

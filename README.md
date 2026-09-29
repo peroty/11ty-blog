@@ -21,6 +21,8 @@ just serve
 
 Open the editor at `http://127.0.0.1:3000` and the live site preview at `http://127.0.0.1:8080`. `just serve` starts both; press Ctrl+C to stop them. If you do not have `just` yet, `npm run start` and `npm run admin` work in separate terminals.
 
+Drafts and new image uploads stay in the Git-ignored `.local-drafts/` folder until you publish them. Private revisions preserve the existing published entry. See the [editor guide](src/admin/README.md) and [Drafts iPhone posting setup](tools/drafts/README.md).
+
 The editor saves Markdown and uploaded images under `src/`. It can create Posts, Notes, Quotes, Bookmarks, Pages, and the older Link Posts. Use **Save Draft** to keep an entry out of the generated site, **Publish** to include it in the local build, and **Deploy** when you want to push published content to GitHub Pages. The preview and metadata controls sit behind **Details & preview** so the Markdown writing area stays visible.
 
 ## Useful Commands

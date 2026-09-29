@@ -266,7 +266,7 @@ function bindEvents() {
       if (!state.currentEntry) {
         return;
       }
-      await persistEntry(state.currentEntry.status || 'draft');
+      await persistEntry('draft');
     }
   });
 }
@@ -474,7 +474,7 @@ function renderCurrentEntry() {
   renderInspectorVisibility();
   refs.workspace.classList.remove('workspace-no-inspector');
   refs.workspace.classList.add('workspace-with-inspector');
-  refs.statusPill.textContent = entry.status === 'draft' ? 'Draft' : 'Published';
+  refs.statusPill.textContent = entry.status === 'draft' ? (entry.hasPublishedVersion ? 'Private revision · original published' : 'Private draft') : 'Published';
   refs.statusPill.className = `status-pill ${entry.status === 'draft' ? 'status-pill-neutral' : 'status-pill-strong'}`;
   refs.statusPill.classList.remove('hidden');
   refs.titleField.classList.toggle('hidden', def.showTitle === false);
@@ -829,7 +829,7 @@ async function persistEntry(targetStatus) {
     renderEntryList();
     queuePreview();
     showMessage(response.localSiteUpdated
-      ? (targetStatus === 'draft' ? 'Draft saved. Local site updated.' : 'Published. Local site updated.')
+      ? (targetStatus === 'draft' ? 'Private draft saved. Published version unchanged.' : 'Published. Local site updated.')
       : `Saved, but the local site build failed: ${response.buildError || 'unknown error'}`,
     !response.localSiteUpdated);
   } catch (error) {
@@ -866,7 +866,9 @@ async function removeCurrentEntry() {
     return;
   }
 
-  const confirmed = window.confirm(`Delete ${displayEntryTitle(state.currentEntry)}? This cannot be undone.`);
+  const confirmed = window.confirm(state.currentEntry.hasPublishedVersion
+    ? 'Discard this private revision? The published version will remain.'
+    : `Delete ${displayEntryTitle(state.currentEntry)}? This cannot be undone.`);
   if (!confirmed) {
     return;
   }
@@ -874,8 +876,7 @@ async function removeCurrentEntry() {
   try {
     const response = await deleteEntry(state.currentEntry);
     clearRecoveryKeys(state.currentEntry);
-    state.entries = state.entries.filter((entry) =>
-      !(entry.filename === state.currentEntry.filename && entry.apiType === state.currentEntry.apiType));
+    await loadWorkspace();
     showMessage(response.localSiteUpdated
       ? 'Entry deleted. Local site updated.'
       : `Entry deleted, but the local site build failed: ${response.buildError || 'unknown error'}`,

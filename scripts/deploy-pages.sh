@@ -30,6 +30,7 @@ if [[ -n $other_changes ]]; then
   exit 1
 fi
 
+node scripts/check-public-content.js --worktree
 npm run test:admin
 SITE_OUTPUT_DIR=../_site-pages PAGES_BASE_PATH=/11ty-blog SITE_URL=https://peroty.github.io/11ty-blog npm run build:pages
 
@@ -44,7 +45,8 @@ if ! git merge-base --is-ancestor origin/main HEAD; then
   exit 1
 fi
 
-git add -A -- src
+git add -A -- src/posts src/notes src/link-posts src/bookmarks src/quotes src/pages src/images
+node scripts/check-public-content.js
 if ! git diff --cached --quiet; then
   git commit -m "Publish blog content"
 fi
