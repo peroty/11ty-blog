@@ -1,7 +1,6 @@
-From a terminal, run:
+Open a terminal in your local `11ty-blog` checkout, then run:
 
 ```
-cd ~/Nextcloud/Homelab/personal-projects/11ty-blog
 just serve
 ```
 
